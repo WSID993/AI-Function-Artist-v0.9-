@@ -4,866 +4,691 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AFA GRAPH (0.7)</title>
+<title>AFA GRAPH 0.8</title>
 <style>
 :root{
- --bg:#101116;--panel:#191b23;--panel2:#242733;--line:#343847;
- --text:#edf0f7;--muted:#969daf;--accent:#8b7cff;--danger:#ff667f;
+  --bg:#10131b;--panel:#191e2a;--panel2:#222a39;
+  --text:#edf2ff;--muted:#9ba8bd;--accent:#70a5ff;
+  --border:#303a4d;--green:#64d9a2;--red:#ff7777;
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 Inter,Segoe UI,Arial,sans-serif;overflow:hidden}
-button,input{font:inherit}
-button{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:7px;padding:7px 10px;cursor:pointer}
-button:hover{border-color:var(--accent)}
-button.primary{background:var(--accent);border-color:var(--accent)}
-button.danger:hover{border-color:var(--danger);color:var(--danger)}
-header{height:48px;background:#171820;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 12px;gap:10px}
-.logo{font-weight:850;letter-spacing:.5px}.version{font-size:11px;color:var(--muted)}
-nav{display:flex;gap:3px}nav button{border:0;background:transparent;color:var(--muted)}
-.right{margin-left:auto;display:flex;gap:6px}
-.app{height:calc(100vh - 48px);display:grid;grid-template-columns:minmax(290px,390px) 1fr}
-.sidebar{background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;min-width:0}
-.sidebar-head{padding:11px;display:flex;align-items:center;gap:7px;border-bottom:1px solid var(--line)}
-.sidebar-head strong{margin-right:auto}
-.list{overflow:auto;flex:1;padding:9px}
-.card{background:#20222c;border:1px solid #303442;border-radius:9px;margin-bottom:9px;overflow:hidden}
-.card.selected{border-color:#7769d9}
-.expr-row{display:flex;align-items:center;gap:8px;padding:8px}
-.dot{width:11px;height:11px;border-radius:50%;flex:none;cursor:pointer}
-.expr{width:100%;min-width:0;background:transparent;border:0;outline:none;color:var(--text);font-size:15px}
-.expr::placeholder{color:#747b8d}
-.tools{display:flex;gap:3px}
-.tools button{padding:3px 7px;font-size:12px}
-.result{padding:0 10px 8px 28px;color:#b7c1d5;overflow-wrap:anywhere;font-family:Consolas,monospace}
-.result.error{color:#ff8294}
-.kind{padding:0 10px 7px 28px;color:#81899c;font-size:10px;text-transform:uppercase;letter-spacing:.8px}
-.sidebar-foot{border-top:1px solid var(--line);padding:9px;display:flex;gap:6px;flex-wrap:wrap}
-.sidebar-foot button{font-size:12px}
-.workspace{min-width:0;display:flex;flex-direction:column}
-.toolbar{height:46px;display:flex;align-items:center;gap:6px;padding:0 10px;background:#171820;border-bottom:1px solid var(--line)}
-.toolbar .spacer{flex:1}
-#coords{font:12px Consolas,monospace;color:var(--muted)}
-.canvas-wrap{flex:1;min-height:0;position:relative}
-#graph{display:block;width:100%;height:100%;touch-action:none}
-.hint{position:absolute;bottom:10px;left:12px;color:#727b8e;font-size:11px;pointer-events:none}
-.keypad{display:flex;flex-wrap:wrap;gap:5px;padding:8px;background:var(--panel);border-top:1px solid var(--line);max-height:112px;overflow:auto}
-.keypad button{flex:1;min-width:40px}
-.status{height:25px;padding:4px 10px;color:var(--muted);font-size:11px;border-top:1px solid var(--line)}
-.modal-bg{display:none;position:fixed;inset:0;background:#000b;z-index:10;align-items:center;justify-content:center}
-.modal{width:min(620px,94vw);max-height:85vh;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px}
-.modal h2{margin:0 0 10px}.modal p{color:var(--muted)}
-.modal button{margin-top:10px}
-.helpgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.helpgrid div{padding:9px;background:var(--panel2);border-radius:7px}
-code{color:#c8bfff}
-@media(max-width:760px){
- .app{grid-template-columns:1fr;grid-template-rows:48% 52%}
- .sidebar{border-right:0;border-bottom:1px solid var(--line)}
- .keypad{max-height:85px}
- header{gap:5px}.logo{font-size:13px}
+body{margin:0;background:var(--bg);color:var(--text);
+font-family:Inter,Segoe UI,Arial,sans-serif}
+header{height:58px;display:flex;align-items:center;justify-content:space-between;
+padding:0 20px;background:#151a25;border-bottom:1px solid var(--border)}
+.logo{font-size:19px;font-weight:800;letter-spacing:.5px}
+.logo span{color:var(--accent)}
+.version{font-size:12px;color:var(--muted);margin-left:8px}
+button{background:var(--panel2);border:1px solid var(--border);
+color:var(--text);padding:9px 13px;border-radius:7px;cursor:pointer}
+button:hover{border-color:var(--accent);background:#2b3850}
+input,textarea{background:#111722;color:var(--text);
+border:1px solid var(--border);border-radius:7px;padding:10px;
+font:14px Consolas,monospace;outline:none}
+input:focus,textarea:focus{border-color:var(--accent)}
+.app{display:grid;grid-template-columns:340px 1fr;height:calc(100vh - 58px)}
+.sidebar{background:var(--panel);border-right:1px solid var(--border);
+padding:16px;overflow:auto}
+h3{font-size:13px;text-transform:uppercase;letter-spacing:1px;
+color:var(--muted);margin:8px 0 12px}
+textarea#expressions{width:100%;height:245px;resize:vertical;line-height:1.65}
+.hint{font-size:12px;line-height:1.6;color:var(--muted);margin:10px 0}
+.actions{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}
+.actions button{flex:1}
+hr{border:0;border-top:1px solid var(--border);margin:17px 0}
+.calcrow{display:flex;gap:7px}
+.calcrow input{flex:1;min-width:0}
+.result{background:#111722;border:1px solid var(--border);
+border-radius:7px;padding:12px;margin-top:9px;min-height:42px;
+font-family:Consolas,monospace;overflow-wrap:anywhere}
+.status{font-size:12px;color:var(--muted);margin-top:9px;min-height:18px}
+.workspace{display:flex;flex-direction:column;min-width:0}
+.toolbar{height:52px;display:flex;align-items:center;gap:8px;
+padding:8px 12px;background:var(--panel);border-bottom:1px solid var(--border)}
+.toolbar button{padding:7px 11px}
+.coordinates{margin-left:auto;color:var(--muted);font:12px Consolas,monospace}
+.canvas-wrap{position:relative;flex:1;min-height:0;background:#10141d}
+canvas{display:block;width:100%;height:100%;cursor:crosshair}
+.graph-note{position:absolute;bottom:12px;left:14px;color:#8492a8;
+font-size:11px;pointer-events:none}
+.legend{display:flex;gap:12px;flex-wrap:wrap;padding:9px 14px;
+background:var(--panel);border-top:1px solid var(--border);font-size:12px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
+.modal{position:fixed;inset:0;background:#0009;display:none;
+align-items:center;justify-content:center;padding:20px}
+.modalbox{background:var(--panel);border:1px solid var(--border);
+border-radius:12px;padding:22px;max-width:650px;width:100%;max-height:85vh;overflow:auto}
+.modalbox p,.modalbox li{color:#c1cce0;line-height:1.6;font-size:14px}
+@media(max-width:800px){
+ .app{grid-template-columns:1fr;grid-template-rows:auto 1fr;height:auto;min-height:calc(100vh - 58px)}
+ .sidebar{border-right:0;border-bottom:1px solid var(--border)}
+ .canvas-wrap{height:55vh;flex:none}
 }
 </style>
 </head>
 <body>
 <header>
- <div class="logo">AFA GRAPH</div><span class="version">(0.7)</span>
- <nav>
-  <button onclick="newProject()">File</button>
-  <button onclick="showHelp()">Help</button>
- </nav>
- <div class="right">
-  <button onclick="saveProject()">Save</button>
-  <button onclick="document.getElementById('fileOpen').click()">Open</button>
-  <input id="fileOpen" type="file" accept=".afg,.json" hidden onchange="loadProject(event)">
+ <div class="logo">AFA <span>GRAPH</span><span class="version">0.8</span></div>
+ <div>
+  <button id="helpBtn">Help</button>
+  <button id="saveBtn">Save</button>
+  <button id="loadBtn">Open</button>
+  <input type="file" id="fileInput" accept=".afg,.json" hidden>
  </div>
 </header>
 
 <div class="app">
  <aside class="sidebar">
-  <div class="sidebar-head">
-   <strong>Expression List</strong>
-   <button class="primary" onclick="addExpression()">+ Add</button>
+  <h3>Expressions & Definitions</h3>
+  <textarea id="expressions" spellcheck="false">y = x^2
+f(x) = sin(x)
+a_n = n^2
+k = 3
+y = k*x
+y = a_1*x</textarea>
+  <div class="hint">
+   One expression per line. Use <b>y = ...</b> for graphs.
+   Use <b>f(x) = ...</b> for functions and <b>a_n = ...</b> for sequences.
   </div>
-  <div class="list" id="expressionList"></div>
-  <div class="sidebar-foot">
-   <button onclick="addExpression('y = x^2')">Graph</button>
-   <button onclick="addExpression('sqrt(81)')">Calculate</button>
-   <button onclick="addExpression('a = 5')">Variable</button>
-   <button onclick="addExpression('f(x) = sin(x)')">Function</button>
-   <button onclick="addExpression('a_n = n^2')">Sequence</button>
-   <button onclick="addExpression('z = 3 + 2i')">Complex</button>
-   <button onclick="addExpression('r = 2 + cos(3t)')">Polar</button>
-   <button onclick="addExpression('x^2 + y^2 = 25')">Implicit</button>
-   <button class="danger" onclick="resetAll()">Reset All</button>
+  <div class="actions">
+   <button id="plotBtn">Plot</button>
+   <button id="resetBtn">Reset View</button>
+  </div>
+  <div class="status" id="status">Ready</div>
+
+  <hr>
+  <h3>Calculator</h3>
+  <div class="calcrow">
+   <input id="calcInput" placeholder="sqrt(81) + 2^3">
+   <button id="calcBtn">Calculate</button>
+  </div>
+  <div class="result" id="calcResult">Result will appear here.</div>
+
+  <hr>
+  <h3>Sequence Explorer</h3>
+  <div class="calcrow">
+   <input id="seqInput" value="a" placeholder="Sequence name">
+   <input id="seqN" value="5" type="number" min="1" max="100">
+  </div>
+  <div class="actions"><button id="seqBtn">Calculate Terms</button></div>
+  <div class="result" id="seqResult">Sequence terms will appear here.</div>
+
+  <hr>
+  <h3>Graph Controls</h3>
+  <div class="actions">
+   <button id="zoomIn">Zoom +</button>
+   <button id="zoomOut">Zoom −</button>
+  </div>
+  <div class="hint">
+   Mouse wheel: zoom<br>
+   Drag: move graph<br>
+   Double-click: reset view<br>
+   Angles: radians
   </div>
  </aside>
 
  <main class="workspace">
   <div class="toolbar">
-   <button onclick="zoom(1.25)">＋</button>
-   <button onclick="zoom(.8)">−</button>
-   <button onclick="fitGraph()">Fit</button>
-   <button onclick="resetView()">Reset View</button>
-   <span class="spacer"></span>
-   <span id="coords">x: 0, y: 0</span>
+   <button id="gridBtn">Grid: ON</button>
+   <button id="axesBtn">Axes: ON</button>
+   <button id="centerBtn">Center</button>
+   <div class="coordinates" id="coordinates">x: — | y: —</div>
   </div>
   <div class="canvas-wrap">
    <canvas id="graph"></canvas>
-   <div class="hint">Drag to pan · Scroll to zoom · Hover to inspect</div>
+   <div class="graph-note">AFA GRAPH 0.8 · Native Graph Engine</div>
   </div>
-  <div class="keypad">
-   <button onclick="insertText('sqrt(')">√</button>
-   <button onclick="insertText('cbrt(')">∛</button>
-   <button onclick="insertText('^')">xⁿ</button>
-   <button onclick="insertText('^^')">^^</button>
-   <button onclick="insertText('^^^')">^^^</button>
-   <button onclick="insertText('pi')">π</button>
-   <button onclick="insertText('e')">e</button>
-   <button onclick="insertText('sin(')">sin</button>
-   <button onclick="insertText('cos(')">cos</button>
-   <button onclick="insertText('tan(')">tan</button>
-   <button onclick="insertText('sinh(')">sinh</button>
-   <button onclick="insertText('log(')">log</button>
-   <button onclick="insertText('ln(')">ln</button>
-   <button onclick="insertText('abs(')">abs</button>
-   <button onclick="insertText('!')">!</button>
-   <button onclick="insertText('(')">(</button>
-   <button onclick="insertText(')')">)</button>
-   <button onclick="insertText('i')">i</button>
-   <button onclick="insertText('+')">+</button>
-   <button onclick="insertText('-')">−</button>
-   <button onclick="insertText('*')">×</button>
-   <button onclick="insertText('/')">÷</button>
-  </div>
-  <div class="status" id="status">Ready · Native Math Engine · Radians</div>
+  <div class="legend" id="legend">No graphs plotted.</div>
  </main>
 </div>
 
-<div class="modal-bg" id="helpModal" onclick="if(event.target===this)hideHelp()">
- <div class="modal">
-  <h2>AFA GRAPH 0.7 — Help</h2>
-  <p>Enter expressions in the left panel. Graphable expressions are drawn automatically.</p>
-  <div class="helpgrid">
-   <div><b>Power</b><br><code>2^10</code></div>
-   <div><b>Tetration</b><br><code>2^^4</code></div>
-   <div><b>Pentation</b><br><code>2^^^3</code></div>
-   <div><b>Graph</b><br><code>y = x^2</code></div>
-   <div><b>Implicit graph</b><br><code>x^2+y^2=25</code></div>
-   <div><b>Polar graph</b><br><code>r=2+cos(3t)</code></div>
-   <div><b>Sequence</b><br><code>a_n=n^2</code></div>
-   <div><b>Complex</b><br><code>z=3+2i</code></div>
-  </div>
-  <p>Functions: sin, cos, tan, asin, acos, atan, sinh, cosh, tanh, sqrt, cbrt, abs, exp, ln, log, log2, gamma, factorial, nCr, nPr, gcd, lcm, mean, median, variance, stdev, sum, product, min, max, det, transpose, trace, real, imag, conj, arg.</p>
-  <p>Hyperoperations require positive bases and integer heights. Large results are limited to prevent browser lockups. Trigonometric functions use radians.</p>
-  <button class="primary" onclick="hideHelp()">Close</button>
+<div class="modal" id="helpModal">
+ <div class="modalbox">
+  <h2>AFA GRAPH 0.8 — Help</h2>
+  <p><b>Graph equations</b></p>
+  <ul>
+   <li><code>y = x^2</code></li>
+   <li><code>y = sin(x)</code></li>
+   <li><code>y = 1/x</code></li>
+   <li><code>y = sqrt(x)</code></li>
+  </ul>
+  <p><b>Mathematical functions</b></p>
+  <ul>
+   <li><code>f(x) = x^2 + 3x</code></li>
+   <li>Functions can be used in other expressions: <code>y = f(x)</code>.</li>
+  </ul>
+  <p><b>Sequences and indexed values</b></p>
+  <ul>
+   <li><code>a_n = n^2</code> defines a sequence.</li>
+   <li><code>a_1</code> evaluates to 1, <code>a_2</code> to 4, and <code>a_3</code> to 9.</li>
+   <li><code>y = a_1*x</code> uses the first term as a number.</li>
+   <li>Sequence indices start at 1.</li>
+  </ul>
+  <p><b>Variables</b></p>
+  <ul>
+   <li><code>k = 5</code></li>
+   <li><code>y = k*x</code></li>
+  </ul>
+  <p><b>Operators</b></p>
+  <ul>
+   <li><code>+ - * / %</code></li>
+   <li><code>^</code> or <code>**</code>: power</li>
+   <li><code>^^</code>: tetration</li>
+   <li><code>^^^</code>: pentation</li>
+   <li><code>!</code>: factorial</li>
+   <li>Implicit multiplication: <code>2x</code>, <code>3(x+1)</code>, <code>2pi</code></li>
+  </ul>
+  <p><b>Built-in functions</b></p>
+  <p>
+   sin, cos, tan, asin, acos, atan, sinh, cosh, tanh,
+   sqrt, cbrt, abs, exp, ln, log, log2, log10,
+   floor, ceil, round, trunc, sign, min, max, pow,
+   hypot, atan2, mod, gcd, lcm, nCr, nPr,
+   mean, median, sum, product, tetration, pentation.
+  </p>
+  <button id="closeHelp">Close</button>
  </div>
 </div>
 
 <script>
 "use strict";
 
-/* =========================
-   AFA GRAPH 0.7 MATH ENGINE
-   ========================= */
+const $ = id => document.getElementById(id);
+const canvas = $("graph");
+const ctx = canvas.getContext("2d");
 
-const COLORS=["#a78bfa","#38bdf8","#4ade80","#fbbf24","#fb7185","#2dd4bf","#f97316","#c084fc"];
-let expressions=[],nextId=1,selectedId=null,lastInput=null;
-let view={x:0,y:0,scale:55};
-let canvas,ctx,dpr=1,drag=null;
+let view = {cx:0,cy:0,scale:55};
+let showGrid = true, showAxes = true;
+let dragging = false, lastMouse = null;
+let compiled = null;
+let graphItems = [];
 
-const $=id=>document.getElementById(id);
-const isC=v=>v&&typeof v==="object"&&"re" in v&&"im" in v;
-const C=(re,im=0)=>({re,im});
-const asC=v=>isC(v)?v:C(Number(v),0);
-const isReal=v=>!isC(v)||Math.abs(v.im)<1e-10;
-const re=v=>isC(v)?v.re:Number(v);
-const im=v=>isC(v)?v.im:0;
-const PI=Math.PI;
-const TAU=2*Math.PI;
+const COLORS = [
+ "#70a5ff","#ff8585","#64d9a2","#d69cff",
+ "#ffc66d","#55d6d0","#f18ac8","#b6d66b"
+];
 
-function format(v){
- if(Array.isArray(v))return "["+v.map(format).join(", ")+"]";
- if(isC(v)){
-  const a=Math.abs(v.re)<1e-11?0:v.re,b=Math.abs(v.im)<1e-11?0:v.im;
-  if(!b)return format(a);
-  if(!a)return (b===1?"":b===-1?"-":format(b))+"i";
-  return format(a)+(b<0?" - ":" + ")+(Math.abs(b)===1?"":format(Math.abs(b)))+"i";
- }
- if(typeof v!=="number")return String(v);
- if(Number.isNaN(v))return "NaN";
- if(!Number.isFinite(v))return v>0?"Infinity":"-Infinity";
- if(Math.abs(v)<1e-12)v=0;
- return Number(v.toPrecision(11)).toString();
-}
+const CONSTANTS = {
+ pi:Math.PI, e:Math.E, tau:Math.PI*2,
+ phi:(1+Math.sqrt(5))/2, inf:Infinity
+};
 
-function cadd(a,b){a=asC(a);b=asC(b);return C(a.re+b.re,a.im+b.im)}
-function csub(a,b){a=asC(a);b=asC(b);return C(a.re-b.re,a.im-b.im)}
-function cmul(a,b){a=asC(a);b=asC(b);return C(a.re*b.re-a.im*b.im,a.re*b.im+a.im*b.re)}
-function cdiv(a,b){
- a=asC(a);b=asC(b);
- const d=b.re*b.re+b.im*b.im;
- if(d===0)throw Error("Division by zero");
- return C((a.re*b.re+a.im*b.im)/d,(a.im*b.re-a.re*b.im)/d);
-}
-function cpow(a,b){
- a=asC(a);b=asC(b);
- if(a.re===0&&a.im===0&&b.re>0&&b.im===0)return C(0);
- const r=Math.hypot(a.re,a.im),theta=Math.atan2(a.im,a.re);
- const m=Math.exp(b.re*Math.log(r)-b.im*theta);
- const angle=b.im*Math.log(r)+b.re*theta;
- return C(m*Math.cos(angle),m*Math.sin(angle));
-}
 function factorial(n){
- if(!Number.isInteger(n)||n<0||n>170)throw Error("Factorial accepts integers from 0 to 170");
- let r=1;for(let i=2;i<=n;i++)r*=i;return r;
+ if(!Number.isInteger(n)||n<0||n>170) throw Error("Factorial requires an integer from 0 to 170.");
+ let r=1; for(let i=2;i<=n;i++)r*=i; return r;
 }
-function gamma(z){
- const p=[676.5203681218851,-1259.1392167224028,771.3234287776531,-176.6150291621406,12.507343278686905,-.13857109526572012,9.984369578019572e-6,1.5056327351493116e-7];
- if(z<.5)return Math.PI/(Math.sin(Math.PI*z)*gamma(1-z));
- z-=1;let x=.9999999999998099;
- for(let i=0;i<p.length;i++)x+=p[i]/(z+i+1);
- const t=z+p.length-.5;
- return Math.sqrt(2*Math.PI)*Math.pow(t,z+.5)*Math.exp(-t)*x;
+function tetration(a,h){
+ if(!Number.isInteger(h)||h<1||h>6) throw Error("Tetration height must be an integer from 1 to 6.");
+ if(a<0||!Number.isFinite(a)||a>10) throw Error("Tetration base must be between 0 and 10.");
+ let r=a;
+ for(let i=1;i<h;i++){
+  if(r>1000)throw Error("Tetration result is too large.");
+  r=Math.pow(a,r);
+  if(!Number.isFinite(r)||r>1e100)throw Error("Tetration result is too large.");
+ }
+ return r;
+}
+function pentation(a,h){
+ if(!Number.isInteger(h)||h<1||h>3) throw Error("Pentation height must be an integer from 1 to 3.");
+ if(a<0||a>3||!Number.isFinite(a))throw Error("Pentation base must be between 0 and 3.");
+ let r=a;
+ for(let i=1;i<h;i++)r=tetration(a,r);
+ return r;
 }
 function gcd(a,b){
  a=Math.abs(Math.trunc(a));b=Math.abs(Math.trunc(b));
  while(b)[a,b]=[b,a%b];return a;
 }
-function lcm(a,b){return a===0||b===0?0:Math.abs(a*b)/gcd(a,b)}
-function median(a){
- a=[...a].sort((x,y)=>x-y);const m=Math.floor(a.length/2);
- return a.length%2?a[m]:(a[m-1]+a[m])/2;
+function combinations(n,r){
+ if(!Number.isInteger(n)||!Number.isInteger(r)||n<0||r<0||r>n)throw Error("Invalid nCr arguments.");
+ return factorial(n)/(factorial(r)*factorial(n-r));
 }
-function stats(a){
- if(!a.length)throw Error("Empty data");
- const mean=a.reduce((s,x)=>s+x,0)/a.length;
- const variance=a.reduce((s,x)=>s+(x-mean)**2,0)/a.length;
- return {mean,median:median(a),variance,stdev:Math.sqrt(variance),sum:a.reduce((s,x)=>s+x,0),min:Math.min(...a),max:Math.max(...a)};
+function permutations(n,r){
+ if(!Number.isInteger(n)||!Number.isInteger(r)||n<0||r<0||r>n)throw Error("Invalid nPr arguments.");
+ return factorial(n)/factorial(n-r);
 }
-
-/* Hyperoperations:
-   ^   = exponentiation
-   ^^  = tetration
-   ^^^ = pentation
-*/
-function tetrate(a,h){
- if(!Number.isInteger(h)||h<1||h>6)throw Error("Tetration height must be an integer from 1 to 6");
- if(!Number.isFinite(a)||a<=0)throw Error("Tetration requires a positive finite base");
- let r=a;
- for(let i=1;i<h;i++){
-  if(r>220||a>1e6)throw Error("Tetration result exceeds safe calculation limits");
-  r=Math.pow(a,r);
-  if(!Number.isFinite(r)||r>1e100)throw Error("Tetration result is too large");
- }
- return r;
-}
-function pentate(a,h){
- if(!Number.isInteger(h)||h<1||h>3)throw Error("Pentation height must be an integer from 1 to 3");
- if(!Number.isFinite(a)||a<=0)throw Error("Pentation requires a positive finite base");
- let r=a;
- for(let i=1;i<h;i++){
-  if(r>6)throw Error("Pentation height exceeds safe limits for this base");
-  r=tetrate(a,r);
- }
- return r;
-}
-
-/* Matrix utilities */
-function matrixCheck(m){
- if(!Array.isArray(m)||!m.length||!m.every(row=>Array.isArray(row)&&row.length===m.length))
-  throw Error("Expected a square matrix");
-}
-function determinant(m){
- matrixCheck(m);m=m.map(r=>r.map(Number));let d=1;
- for(let i=0;i<m.length;i++){
-  let pivot=i;for(let j=i+1;j<m.length;j++)if(Math.abs(m[j][i])>Math.abs(m[pivot][i]))pivot=j;
-  if(Math.abs(m[pivot][i])<1e-14)return 0;
-  if(pivot!==i){[m[i],m[pivot]]=[m[pivot],m[i]];d=-d}
-  const p=m[i][i];d*=p;
-  for(let j=i+1;j<m.length;j++){
-   const f=m[j][i]/p;
-   for(let k=i+1;k<m.length;k++)m[j][k]-=f*m[i][k];
-  }
- }
- return d;
-}
-
-/* Built-in functions */
 const FN={
  sin:Math.sin,cos:Math.cos,tan:Math.tan,
  asin:Math.asin,acos:Math.acos,atan:Math.atan,
  sinh:Math.sinh,cosh:Math.cosh,tanh:Math.tanh,
  asinh:Math.asinh,acosh:Math.acosh,atanh:Math.atanh,
- sqrt:x=>x<0?C(0,Math.sqrt(-x)):Math.sqrt(x),
- cbrt:Math.cbrt,abs:Math.abs,exp:Math.exp,
- ln:Math.log,log:Math.log10,log2:Math.log2,log10:Math.log10,
- floor:Math.floor,ceil:Math.ceil,round:Math.round,trunc:Math.trunc,
- sign:Math.sign,erf:x=>{
-  const s=x<0?-1:1;x=Math.abs(x);
-  const t=1/(1+.3275911*x);
-  return s*(1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-.284496736)*t+.254829592)*t*Math.exp(-x*x));
- },
- gamma,factorial,
- nCr:(n,r)=>factorial(n)/(factorial(r)*factorial(n-r)),
- nPr:(n,r)=>factorial(n)/factorial(n-r),
- gcd,lcm,mod:(a,b)=>((a%b)+b)%b,
- min:Math.min,max:Math.max,pow:Math.pow,hypot:Math.hypot,
- atan2:Math.atan2,clamp:(x,a,b)=>Math.max(a,Math.min(b,x)),
- mean:(...a)=>stats(a).mean,median:(...a)=>stats(a).median,
- variance:(...a)=>stats(a).variance,stdev:(...a)=>stats(a).stdev,
+ sqrt:Math.sqrt,cbrt:Math.cbrt,abs:Math.abs,
+ exp:Math.exp,ln:Math.log,log:Math.log10,
+ log10:Math.log10,log2:Math.log2,
+ floor:Math.floor,ceil:Math.ceil,round:Math.round,
+ trunc:Math.trunc,sign:Math.sign,
+ min:Math.min,max:Math.max,pow:Math.pow,
+ hypot:Math.hypot,atan2:Math.atan2,
+ mod:(a,b)=>((a%b)+b)%b,
+ gcd,lcm:(a,b)=>Math.abs(a*b)/gcd(a,b),
+ nCr:combinations,nPr:permutations,
+ factorial,
+ tetration,pentation,
+ deg:x=>x*180/Math.PI,
+ rad:x=>x*Math.PI/180,
+ sec:x=>1/Math.cos(x),csc:x=>1/Math.sin(x),
+ cot:x=>1/Math.tan(x),
+ mean:(...a)=>a.reduce((s,x)=>s+x,0)/a.length,
  sum:(...a)=>a.reduce((s,x)=>s+x,0),
  product:(...a)=>a.reduce((s,x)=>s*x,1),
- real:re,imag:im,re,im,
- conj:v=>C(re(v),-im(v)),arg:v=>Math.atan2(im(v),re(v)),
- mag:v=>Math.hypot(re(v),im(v)),
- det:determinant,
- trace:m=>{matrixCheck(m);return m.reduce((s,r,i)=>s+Number(r[i]),0)},
- transpose:m=>{if(!Array.isArray(m))throw Error("Expected matrix");return m[0].map((_,i)=>m.map(r=>r[i]))},
- identity:n=>Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>i===j?1:0)),
- roundTo:(x,n=0)=>{const p=10**n;return Math.round(x*p)/p},
- deg:x=>x*180/Math.PI,rad:x=>x*Math.PI/180,
- sec:x=>1/Math.cos(x),csc:x=>1/Math.sin(x),cot:x=>1/Math.tan(x),
- sech:x=>1/Math.cosh(x),csch:x=>1/Math.sinh(x),coth:x=>1/Math.tanh(x),
- sinc:x=>x===0?1:Math.sin(x)/x,
- tetration:tetrate,pentation:pentate
+ median:(...a)=>{let b=[...a].sort((x,y)=>x-y),m=b.length>>1;return b.length%2?b[m]:(b[m-1]+b[m])/2;}
 };
 
-/* Tokenizer */
-function tokenize(src){
- src=src.replace(/\*\*/g,"^").replace(/π/g,"pi").replace(/×/g,"*").replace(/÷/g,"/");
- const out=[];let i=0;
- while(i<src.length){
-  const s=src.slice(i);
-  if(/^\s+/.test(s)){i+=s.match(/^\s+/)[0].length;continue}
-  const number=s.match(/^(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?/i);
-  if(number){out.push({t:"num",v:Number(number[0])});i+=number[0].length;continue}
-  const ident=s.match(/^[A-Za-z_][A-Za-z_0-9]*/);
-  if(ident){out.push({t:"id",v:ident[0]});i+=ident[0].length;continue}
-  const op=["^^^","^^","<=",">=","==","!=","//","%"].find(x=>s.startsWith(x));
-  if(op){out.push({t:op,v:op});i+=op.length;continue}
-  const ch=src[i];
-  if("+-*/^!(),[]".includes(ch)){out.push({t:ch,v:ch});i++;continue}
-  throw Error("Unknown character: "+ch);
+function tokenize(source){
+ const s=source.replace(/\*\*/g,"^");
+ const tokens=[];
+ let i=0;
+ while(i<s.length){
+  if(/\s/.test(s[i])){i++;continue;}
+  const rest=s.slice(i);
+  const op=rest.match(/^(\^\^\^|\^\^|[+\-*/%^(),!])/);
+  if(op){tokens.push({t:op[1]});i+=op[1].length;continue;}
+  const num=rest.match(/^(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?/i);
+  if(num){tokens.push({t:"num",v:Number(num[0])});i+=num[0].length;continue;}
+  const id=rest.match(/^[A-Za-z_][A-Za-z_0-9]*/);
+  if(id){tokens.push({t:"id",v:id[0]});i+=id[0].length;continue;}
+  throw Error("Unexpected character: "+s[i]);
  }
- return out;
+ tokens.push({t:"EOF"});
+ return tokens;
 }
 
-/* Pratt parser with implicit multiplication */
-function parse(src){
- const t=tokenize(src);let p=0;
- const peek=()=>t[p]||{t:"eof"};
- const take=()=>t[p++];
- const startsAtom=()=>["num","id","(","["].includes(peek().t);
- function primary(){
-  const q=take();
-  if(q.t==="num")return {k:"num",v:q.v};
-  if(q.t==="+"||q.t==="-")return {k:"un",op:q.t,a:expr(29)};
-  if(q.t==="("){const a=expr(0);if(take().t!==")")throw Error("Missing )");return a}
-  if(q.t==="["){
-   const rows=[];
-   if(peek().t!=="]"){
-    do{
-     if(take().t!=="[")throw Error("Matrix rows must use brackets");
-     const row=[];
-     if(peek().t!=="]"){
-      do{row.push(expr(0));if(peek().t!==",")break;take()}while(true);
-     }
-     if(take().t!=="]")throw Error("Missing matrix row bracket");
-     rows.push(row);
-     if(peek().t!==",")break;take();
-    }while(true);
-   }
-   if(take().t!=="]")throw Error("Missing matrix bracket");
-   return {k:"matrix",rows};
-  }
-  if(q.t==="id"){
-   if(peek().t==="("){
-    take();const args=[];
-    if(peek().t!==")"){
-     do{args.push(expr(0));if(peek().t!==",")break;take()}while(true);
-    }
-    if(take().t!==")")throw Error("Missing function )");
-    return {k:"call",name:q.v,args};
-   }
-   return {k:"id",name:q.v};
-  }
-  throw Error("Unexpected token "+q.v);
- }
- function postfix(){
-  let a=primary();
-  while(peek().t==="!"){take();a={k:"fact",a}}
-  return a;
- }
- const bp={"+":10,"-":10,"*":20,"/":20,"//":20,"%":20,"^":30,"^^":35,"^^^":40};
- function expr(min){
-  let left=postfix();
+function parse(source){
+ const ts=tokenize(source);
+ let p=0;
+ const peek=()=>ts[p];
+ const take=()=>ts[p++];
+ const expect=t=>{if(peek().t!==t)throw Error("Expected '"+t+"'");return take();};
+
+ function expression(min=0){
+  let left=primary();
   while(true){
    let op=peek().t;
    let implicit=false;
-   if(startsAtom()&&["num","id","(","["].includes(op)){
-    // A name followed by '(' is a function call, not multiplication.
-    // Other adjacent terms imply multiplication.
-    if(t[p-1]?.t==="id"&&op==="(")break;
+   if(["num","id","("].includes(op)){
     op="*";implicit=true;
    }
-   const prec=bp[op];
+   const prec={
+    "+":1,"-":1,"*":2,"/":2,"%":2,
+    "^":4,"^^":4,"^^^":4
+   }[op];
    if(prec===undefined||prec<min)break;
    if(!implicit)take();
-   const right=expr(prec+(["^","^^","^^^"].includes(op)?0:1));
-   left={k:"bin",op,a:left,b:right};
+   const right=expression(prec+(["^","^^","^^^"].includes(op)?0:1));
+   left={type:"bin",op,left,right};
   }
   return left;
  }
- const ast=expr(0);
- if(p<t.length)throw Error("Unexpected token: "+t[p].v);
+
+ function primary(){
+  let t=take();
+  let node;
+  if(t.t==="num")node={type:"num",value:t.v};
+  else if(t.t==="id"){
+   const name=t.v;
+   if(peek().t==="("){
+    take();
+    const args=[];
+    if(peek().t!==")"){
+     do{
+      args.push(expression(0));
+      if(peek().t!==",")break;
+      take();
+     }while(true);
+    }
+    expect(")");
+    node={type:"call",name,args};
+   }else node={type:"id",name};
+  }else if(t.t==="("){
+   node=expression(0);expect(")");
+  }else if(t.t==="+"||t.t==="-"){
+   node={type:"unary",op:t.t,value:expression(3)};
+  }else throw Error("Unexpected token: "+t.t);
+
+  while(peek().t==="!"){
+   take();node={type:"factorial",value:node};
+  }
+  return node;
+ }
+
+ const ast=expression(0);
+ if(peek().t!=="EOF")throw Error("Unexpected token: "+peek().t);
  return ast;
 }
 
-/* Evaluation */
-function evaluate(ast,scope={}){
- switch(ast.k){
-  case "num":return ast.v;
+function evaluate(ast,env,local={}){
+ switch(ast.type){
+  case "num":return ast.value;
   case "id":{
-   const n=ast.name;
-   if(n==="pi")return Math.PI;if(n==="e")return Math.E;
-   if(n==="tau")return TAU;if(n==="i")return C(0,1);
-   if(n==="Infinity")return Infinity;
-   if(n==="NaN")return NaN;
-   if(Object.prototype.hasOwnProperty.call(scope,n))return scope[n];
-   throw Error("Undefined name: "+n);
+   const name=ast.name;
+   if(Object.prototype.hasOwnProperty.call(local,name))return local[name];
+   if(Object.prototype.hasOwnProperty.call(env.values,name))return env.values[name];
+   if(Object.prototype.hasOwnProperty.call(CONSTANTS,name))return CONSTANTS[name];
+
+   const indexed=name.match(/^([A-Za-z]\w*)_(\d+)$/);
+   if(indexed&&env.sequences[indexed[1]]){
+    const n=Number(indexed[2]);
+    if(n<1||n>10000)throw Error("Sequence index must be from 1 to 10000.");
+    return evaluate(env.sequences[indexed[1]],env,{...local,n});
+   }
+   throw Error("Undefined name: "+name);
   }
-  case "matrix":return ast.rows.map(row=>row.map(x=>evaluate(x,scope)));
-  case "un":{const v=evaluate(ast.a,scope);return ast.op==="-"?cmul(-1,v):v}
-  case "fact":{const v=evaluate(ast.a,scope);if(!isReal(v))throw Error("Factorial needs a real value");return factorial(re(v))}
+  case "unary":{
+   const v=evaluate(ast.value,env,local);
+   return ast.op==="-"?-v:v;
+  }
+  case "factorial":return factorial(evaluate(ast.value,env,local));
   case "bin":{
-   const a=evaluate(ast.a,scope),b=evaluate(ast.b,scope);
-   if(ast.op==="+")return cadd(a,b);
-   if(ast.op==="-")return csub(a,b);
-   if(ast.op==="*")return cMulSafe(a,b);
-   if(ast.op==="/")return cdiv(a,b);
-   if(ast.op==="%")return re(a)%re(b);
-   if(ast.op==="//")return Math.floor(re(a)/re(b));
-   if(ast.op==="^")return cpow(a,b);
-   if(ast.op==="^^")return tetrate(re(a),re(b));
-   if(ast.op==="^^^")return pentate(re(a),re(b));
+   const a=evaluate(ast.left,env,local);
+   const b=evaluate(ast.right,env,local);
+   switch(ast.op){
+    case "+":return a+b;
+    case "-":return a-b;
+    case "*":return a*b;
+    case "/":return a/b;
+    case "%":return a%b;
+    case "^":return Math.pow(a,b);
+    case "^^":return tetration(a,b);
+    case "^^^":return pentation(a,b);
+   }
+   break;
   }
   case "call":{
-   const fn=FN[ast.name];
-   if(!fn)throw Error("Unknown function: "+ast.name);
-   const args=ast.args.map(a=>evaluate(a,scope));
-   if(ast.name==="sqrt"&&isC(args[0])){
-    const z=args[0],m=Math.hypot(z.re,z.im);
-    return C(Math.sqrt((m+z.re)/2),Math.sign(z.im||1)*Math.sqrt((m-z.re)/2));
+   const args=ast.args.map(a=>evaluate(a,env,local));
+   if(FN[ast.name])return FN[ast.name](...args);
+   if(env.functions[ast.name]){
+    const f=env.functions[ast.name];
+    if(args.length!==1)throw Error("Function "+ast.name+" expects one argument.");
+    return evaluate(f.ast,env,{...local,[f.parameter]:args[0]});
    }
-   if(args.some(isC)&&!["real","imag","re","im","conj","arg","mag"].includes(ast.name))
-    throw Error(ast.name+" does not support complex input");
-   const v=fn(...args.map(re));
-   if(typeof v==="number"&&!Number.isFinite(v))throw Error("Result is not finite");
-   return v;
+   throw Error("Unknown function: "+ast.name);
   }
  }
- throw Error("Invalid expression");
-}
-function cMulSafe(a,b){return cmul(a,b)}
-
-/* Function calls and definitions */
-function evalWithFunctions(ast,scope,funcs){
- if(ast.k==="call"&&funcs[ast.name]){
-  if(ast.args.length!==1)throw Error(ast.name+" expects one argument");
-  return funcs[ast.name](evalWithFunctions(ast.args[0],scope,funcs));
- }
- if(ast.k==="bin"){
-  const a=evalWithFunctions(ast.a,scope,funcs),b=evalWithFunctions(ast.b,scope,funcs);
-  if(ast.op==="+")return cadd(a,b);
-  if(ast.op==="-")return csub(a,b);
-  if(ast.op==="*")return cmul(a,b);
-  if(ast.op==="/")return cdiv(a,b);
-  if(ast.op==="%")return re(a)%re(b);
-  if(ast.op==="^")return cpow(a,b);
-  if(ast.op==="^^")return tetrate(re(a),re(b));
-  if(ast.op==="^^^")return pentate(re(a),re(b));
- }
- if(ast.k==="un")return ast.op==="-"?cmul(-1,evalWithFunctions(ast.a,scope,funcs)):evalWithFunctions(ast.a,scope,funcs);
- if(ast.k==="fact")return factorial(re(evalWithFunctions(ast.a,scope,funcs)));
- if(ast.k==="matrix")return ast.rows.map(r=>r.map(x=>evalWithFunctions(x,scope,funcs)));
- if(ast.k==="call"){
-  const args=ast.args.map(x=>evalWithFunctions(x,scope,funcs));
-  const fn=FN[ast.name];if(!fn)throw Error("Unknown function: "+ast.name);
-  if(args.some(isC)&&!["real","imag","re","im","conj","arg","mag"].includes(ast.name))throw Error("Complex input not supported");
-  const v=fn(...args.map(re));
-  if(typeof v==="number"&&!Number.isFinite(v))throw Error("Result is not finite");
-  return v;
- }
- return evaluate(ast,scope);
+ throw Error("Invalid expression.");
 }
 
-function classify(s){
- s=s.trim();
- if(!s)return "empty";
- if(/^folder\s*:/i.test(s))return "folder";
- if(/^[A-Za-z_]\w*_n\s*=/.test(s))return "sequence";
- if(/^[A-Za-z_]\w*\s*\(\s*[A-Za-z_]\w*\s*\)\s*=/.test(s))return "function";
- if(/^[A-Za-z_]\w*\s*=/.test(s))return "variable";
- if(/^r\s*=/.test(s))return "polar";
- if(/^y\s*=/.test(s))return "graph";
- if(s.includes("="))return "implicit";
- return "calculation";
+function splitDefinition(line){
+ const i=line.indexOf("=");
+ if(i<0)return null;
+ return [line.slice(0,i).trim(),line.slice(i+1).trim()];
 }
-function splitEq(s){
- const i=s.indexOf("=");return [s.slice(0,i).trim(),s.slice(i+1).trim()];
-}
-function compile(){
- const scope={},funcs={},errors={};
- const variableEntries=expressions.filter(e=>e.visible&&classify(e.text)==="variable");
- // Resolve definitions repeatedly to allow forward references.
- for(let pass=0;pass<variableEntries.length+2;pass++){
-  let changed=false;
-  for(const e of variableEntries){
-   try{
-    const [name,rhs]=splitEq(e.text);
-    const value=evalWithFunctions(parse(rhs),scope,funcs);
-    const old=scope[name];
-    if(JSON.stringify(old)!==JSON.stringify(value)){scope[name]=value;changed=true}
-    delete errors[e.id];
-   }catch(err){errors[e.id]=err.message}
-  }
-  if(!changed)break;
- }
- for(const e of expressions){
-  if(!e.visible||classify(e.text)!=="function")continue;
+
+function compile(lines){
+ const env={values:{},functions:{},sequences:{}};
+ const graph=[];
+ const errors=[];
+
+ const variableDefs=[];
+ const functionDefs=[];
+ const sequenceDefs=[];
+
+ lines.forEach((raw,index)=>{
+  const line=raw.trim();
+  if(!line||line.startsWith("#"))return;
+  const pair=splitDefinition(line);
+  if(!pair){errors.push("Line "+(index+1)+": Missing '='");return;}
+  const [lhs,rhs]=pair;
+  if(!rhs){errors.push("Line "+(index+1)+": Empty expression");return;}
+
   try{
-   const m=e.text.match(/^([A-Za-z_]\w*)\s*\(\s*([A-Za-z_]\w*)\s*\)\s*=\s*(.+)$/);
-   if(!m)continue;
-   const [,name,arg,rhs]=m;
-   const ast=parse(rhs);
-   funcs[name]=x=>evalWithFunctions(ast,{...scope,[arg]:x},funcs);
-  }catch(err){errors[e.id]=err.message}
- }
- return {scope,funcs,errors};
-}
-function resultFor(e,c){
- const type=classify(e.text);
- if(["empty","folder","graph","polar","implicit","function","sequence"].includes(type))return "";
- try{
-  const rhs=type==="variable"?splitEq(e.text)[1]:e.text;
-  return format(evalWithFunctions(parse(rhs),c.scope,c.funcs));
- }catch(err){return "Error: "+err.message}
-}
-
-/* UI rendering */
-function addExpression(text=""){
- const e={id:nextId++,text,visible:true,color:COLORS[(nextId-2)%COLORS.length]};
- expressions.push(e);selectedId=e.id;renderList();draw();
- const input=document.querySelector(`[data-id="${e.id}"]`);
- if(input){input.focus();lastInput=input}
-}
-function deleteExpression(id){
- expressions=expressions.filter(e=>e.id!==id);
- if(selectedId===id)selectedId=null;
- renderList();draw();
-}
-function duplicateExpression(id){
- const e=expressions.find(x=>x.id===id);if(!e)return;
- const n={...e,id:nextId++};
- expressions.splice(expressions.indexOf(e)+1,0,n);
- selectedId=n.id;renderList();draw();
-}
-function renderList(){
- const root=$("expressionList");root.innerHTML="";
- const c=compile();
- for(const e of expressions){
-  const card=document.createElement("div");
-  card.className="card"+(selectedId===e.id?" selected":"");
-  const row=document.createElement("div");row.className="expr-row";
-  const dot=document.createElement("span");dot.className="dot";dot.style.background=e.color;
-  dot.title="Change color";
-  dot.onclick=()=>{const i=COLORS.indexOf(e.color);e.color=COLORS[(i+1)%COLORS.length];renderList();draw()};
-  const input=document.createElement("input");input.className="expr";input.dataset.id=e.id;
-  input.value=e.text;input.placeholder="Enter expression...";input.spellcheck=false;
-  input.onfocus=()=>{selectedId=e.id;lastInput=input;document.querySelectorAll(".card").forEach(x=>x.classList.remove("selected"));card.classList.add("selected")};
-  input.oninput=()=>{e.text=input.value;refreshResults();draw()};
-  input.onkeydown=ev=>{
-   if(ev.key==="Enter"){ev.preventDefault();addExpression("")}
-   if(ev.key==="Escape")input.blur();
-  };
-  const tools=document.createElement("div");tools.className="tools";
-  const toggle=document.createElement("button");toggle.textContent=e.visible?"●":"○";toggle.title="Show / hide";
-  toggle.onclick=()=>{e.visible=!e.visible;renderList();draw()};
-  const dup=document.createElement("button");dup.textContent="⧉";dup.title="Duplicate";dup.onclick=()=>duplicateExpression(e.id);
-  const del=document.createElement("button");del.textContent="×";del.title="Delete";del.onclick=()=>deleteExpression(e.id);
-  tools.append(toggle,dup,del);row.append(dot,input,tools);card.append(row);
-  const res=resultFor(e,c);
-  if(res){
-   const r=document.createElement("div");r.className="result"+(res.startsWith("Error:")?" error":"");r.textContent=res;card.append(r);
-  }
-  if(e.text.trim()){
-   const k=document.createElement("div");k.className="kind";k.textContent=classify(e.text);card.append(k);
-  }
-  root.append(card);
- }
-}
-function refreshResults(){
- const c=compile();
- document.querySelectorAll(".card").forEach(card=>{
-  const input=card.querySelector("input");if(!input)return;
-  const e=expressions.find(x=>x.id===Number(input.dataset.id));if(!e)return;
-  let r=card.querySelector(".result"),value=resultFor(e,c);
-  if(value){
-   if(!r){r=document.createElement("div");r.className="result";card.append(r)}
-   r.textContent=value;r.className="result"+(value.startsWith("Error:")?" error":"");
-  }else if(r)r.remove();
-  const k=card.querySelector(".kind");if(k)k.textContent=classify(e.text);
+   const seq=lhs.match(/^([A-Za-z]\w*)_n$/);
+   const fun=lhs.match(/^([A-Za-z]\w*)\s*\(\s*([A-Za-z]\w*)\s*\)$/);
+   if(seq)sequenceDefs.push({name:seq[1],ast:parse(rhs),line:index+1});
+   else if(fun)functionDefs.push({name:fun[1],parameter:fun[2],ast:parse(rhs),line:index+1});
+   else if(/^[A-Za-z_]\w*$/.test(lhs))variableDefs.push({name:lhs,ast:parse(rhs),line:index+1});
+   else if(lhs==="y")graph.push({type:"explicit",ast:parse(rhs),label:line});
+   else errors.push("Line "+(index+1)+": Unsupported definition.");
+  }catch(e){errors.push("Line "+(index+1)+": "+e.message);}
  });
-}
-function insertText(text){
- let input=lastInput;
- if(!input||!document.contains(input)){
-  const all=document.querySelectorAll(".expr");input=all[all.length-1];
- }
- if(!input){addExpression("");input=lastInput}
- if(!input)return;
- const s=input.selectionStart??input.value.length,e=input.selectionEnd??s;
- input.setRangeText(text,s,e,"end");input.dispatchEvent(new Event("input"));input.focus();lastInput=input;
-}
-function resetAll(){
- if(!confirm("Delete all expressions and reset the graph?"))return;
- expressions=[];nextId=1;selectedId=null;resetView();renderList();draw();
-}
-function newProject(){
- if(!confirm("Start a new project? Unsaved changes will be lost."))return;
- expressions=[];nextId=1;selectedId=null;resetView();renderList();draw();
-}
-function saveProject(){
- const data={app:"AFA GRAPH",version:"0.7",expressions,nextId,view};
- const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
- const url=URL.createObjectURL(blob),a=document.createElement("a");
- a.href=url;a.download="project.afg";a.click();URL.revokeObjectURL(url);
- $("status").textContent="Project saved as project.afg";
-}
-function loadProject(ev){
- const file=ev.target.files[0];if(!file)return;
- const reader=new FileReader();
- reader.onload=()=>{
-  try{
-   const data=JSON.parse(reader.result);
-   if(!Array.isArray(data.expressions))throw Error("Invalid project file");
-   expressions=data.expressions.map((e,i)=>({
-    id:Number(e.id)||i+1,text:String(e.text||""),visible:e.visible!==false,
-    color:e.color||COLORS[i%COLORS.length]
-   }));
-   nextId=Math.max(Number(data.nextId)||1,...expressions.map(e=>e.id+1));
-   if(data.view)view={...view,...data.view};
-   selectedId=null;renderList();draw();$("status").textContent="Loaded "+file.name;
-  }catch(err){alert("Could not load project: "+err.message)}
-  ev.target.value="";
- };
- reader.readAsText(file);
-}
-function showHelp(){$("helpModal").style.display="flex"}
-function hideHelp(){$("helpModal").style.display="none"}
 
-/* Graph canvas */
-function sizeCanvas(){
- const r=canvas.getBoundingClientRect();dpr=window.devicePixelRatio||1;
- canvas.width=Math.max(1,Math.round(r.width*dpr));
- canvas.height=Math.max(1,Math.round(r.height*dpr));
- ctx.setTransform(dpr,0,0,dpr,0,0);draw();
-}
-function dims(){const r=canvas.getBoundingClientRect();return {w:r.width,h:r.height}}
-function screen(x,y){
- const {w,h}=dims();return {x:w/2+(x-view.x)*view.scale,y:h/2-(y-view.y)*view.scale};
-}
-function world(px,py){
- const {w,h}=dims();return {x:(px-w/2)/view.scale+view.x,y:-(py-h/2)/view.scale+view.y};
-}
-function niceStep(v){
- const p=10**Math.floor(Math.log10(v||1)),n=v/p;
- return (n<1.5?1:n<3.5?2:n<7.5?5:10)*p;
-}
-function drawGrid(w,h){
- ctx.clearRect(0,0,w,h);
- const l=world(0,0).x,r=world(w,0).x,t=world(0,0).y,b=world(0,h).y;
- const step=niceStep(75/view.scale);
- ctx.font="11px Arial";ctx.fillStyle="#858c9d";ctx.lineWidth=1;
- for(let x=Math.floor(l/step)*step;x<=r;x+=step){
-  const px=screen(x,0).x;
-  ctx.strokeStyle=Math.abs(x)<1e-10?"#8991a4":"#282c38";
-  ctx.beginPath();ctx.moveTo(px,0);ctx.lineTo(px,h);ctx.stroke();
-  if(Math.abs(x)>1e-10)ctx.fillText(format(x),px+4,h/2+14);
- }
- for(let y=Math.floor(b/step)*step;y<=t;y+=step){
-  const py=screen(0,y).y;
-  ctx.strokeStyle=Math.abs(y)<1e-10?"#8991a4":"#282c38";
-  ctx.beginPath();ctx.moveTo(0,py);ctx.lineTo(w,py);ctx.stroke();
-  if(Math.abs(y)>1e-10)ctx.fillText(format(y),w/2+5,py-4);
- }
- const o=screen(0,0);
- ctx.strokeStyle="#c0c5d2";ctx.lineWidth=1.5;
- ctx.beginPath();ctx.moveTo(0,o.y);ctx.lineTo(w,o.y);ctx.moveTo(o.x,0);ctx.lineTo(o.x,h);ctx.stroke();
- ctx.fillStyle="#d9deeb";ctx.fillText("x",w-15,o.y-8);ctx.fillText("y",o.x+8,13);
-}
-function sample(ast,x,y,t,c){
- return evalWithFunctions(ast,{...c.scope,x,y,t},c.funcs);
-}
-function drawExplicit(rhs,color,c,w,h){
- let ast;try{ast=parse(rhs)}catch(e){return}
- ctx.strokeStyle=color;ctx.lineWidth=2;ctx.beginPath();
- let pen=false,prev=null;
- for(let px=0;px<=w;px+=1.5){
-  const x=world(px,0).x;
-  try{
-   const v=sample(ast,x,0,x,c);
-   if(!isReal(v))throw Error();
-   const y=re(v),p=screen(x,y);
-   if(!Number.isFinite(p.y)||Math.abs(p.y)>h*5||prev!==null&&Math.abs(p.y-prev)>h*.7){pen=false}
-   if(!pen){ctx.moveTo(px,p.y);pen=true}else ctx.lineTo(px,p.y);
-   prev=p.y;
-  }catch(e){pen=false;prev=null}
- }
- ctx.stroke();
-}
-function drawPolar(rhs,color,c,w,h){
- let ast;try{ast=parse(rhs)}catch(e){return}
- ctx.strokeStyle=color;ctx.lineWidth=2;ctx.beginPath();let pen=false,prev=null;
- for(let t=0;t<=TAU*8;t+=.012){
-  try{
-   const rv=sample(ast,0,0,t,c);if(!isReal(rv))throw Error();
-   const r=re(rv),p=screen(r*Math.cos(t),r*Math.sin(t));
-   if(!Number.isFinite(p.x)||!Number.isFinite(p.y)||Math.abs(p.x)>w*4||Math.abs(p.y)>h*4||prev&&Math.hypot(p.x-prev.x,p.y-prev.y)>h*.25){pen=false}
-   if(!pen){ctx.moveTo(p.x,p.y);pen=true}else ctx.lineTo(p.x,p.y);
-   prev=p;
-  }catch(e){pen=false;prev=null}
- }
- ctx.stroke();
-}
-function drawSequence(rhs,color,c,w,h){
- let ast;try{ast=parse(rhs)}catch(e){return}
- ctx.fillStyle=color;
- for(let n=0;n<=100;n++){
-  try{
-   const v=sample(ast,n,0,n,c);if(!isReal(v))continue;
-   const p=screen(n,re(v));
-   if(p.x<0||p.x>w||p.y<0||p.y>h)continue;
-   ctx.beginPath();ctx.arc(p.x,p.y,3.5,0,TAU);ctx.fill();
-  }catch(e){}
- }
-}
-function drawImplicit(lhs,rhs,color,c,w,h){
- let a,b;try{a=parse(lhs);b=parse(rhs)}catch(e){return}
- // Raster contour approximation. Lower step means smoother but slower.
- const step=3.5,threshold=.12;
- ctx.fillStyle=color;
- for(let py=0;py<h;py+=step){
-  for(let px=0;px<w;px+=step){
-   const p=world(px,py);
+ for(const s of sequenceDefs)env.sequences[s.name]=s.ast;
+ for(const f of functionDefs)env.functions[f.name]=f;
+
+ // Resolve variables repeatedly so definitions may refer to later variables.
+ const pending=[...variableDefs];
+ for(let pass=0;pass<variableDefs.length+2&&pending.length;pass++){
+  for(let i=pending.length-1;i>=0;i--){
+   const d=pending[i];
    try{
-    const va=sample(a,p.x,p.y,p.x,c),vb=sample(b,p.x,p.y,p.x,c);
-    if(!isReal(va)||!isReal(vb))continue;
-    if(Math.abs(re(va)-re(vb))<threshold)ctx.fillRect(px,py,2,2);
+    const v=evaluate(d.ast,env);
+    if(Number.isFinite(v)){
+     env.values[d.name]=v;
+     pending.splice(i,1);
+    }
    }catch(e){}
   }
  }
-}
-function draw(){
- if(!canvas||!ctx)return;
- const {w,h}=dims();if(!w||!h)return;
- drawGrid(w,h);
- const c=compile();
- for(const e of expressions){
-  if(!e.visible)continue;
-  const type=classify(e.text);
-  try{
-   if(type==="graph")drawExplicit(splitEq(e.text)[1],e.color,c,w,h);
-   else if(type==="function"){
-    const m=e.text.match(/^[A-Za-z_]\w*\s*\(\s*([A-Za-z_]\w*)\s*\)\s*=\s*(.+)$/);
-    if(m&&m[1]==="x")drawExplicit(m[2],e.color,c,w,h);
-   }else if(type==="polar")drawPolar(splitEq(e.text)[1],e.color,c,w,h);
-   else if(type==="implicit"){
-    const [a,b]=splitEq(e.text);drawImplicit(a,b,e.color,c,w,h);
-   }else if(type==="sequence"){
-    drawSequence(splitEq(e.text)[1],e.color,c,w,h);
-   }
-  }catch(err){}
+ for(const d of pending)errors.push("Line "+d.line+": Could not resolve "+d.name+".");
+
+ // Validate function definitions.
+ for(const f of functionDefs){
+  try{evaluate(f.ast,env,{[f.parameter]:1});}
+  catch(e){errors.push("Function "+f.name+": "+e.message);}
  }
+ return {env,graph,errors,lines};
 }
-function zoom(f){
- const {w,h}=dims(),center=world(w/2,h/2);
- view.scale=Math.max(4,Math.min(600,view.scale*f));
- view.x=center.x;view.y=center.y;draw();
+
+function worldToScreen(x,y,w,h){
+ return {x:w/2+(x-view.cx)*view.scale,
+         y:h/2-(y-view.cy)*view.scale};
 }
-function resetView(){view={x:0,y:0,scale:55};draw()}
-function fitGraph(){
- view={x:0,y:0,scale:55};
- const c=compile(),values=[];
- for(const e of expressions){
-  if(!e.visible)continue;
-  let rhs=null;
-  if(classify(e.text)==="graph")rhs=splitEq(e.text)[1];
-  if(classify(e.text)==="function"){
-   const m=e.text.match(/^[A-Za-z_]\w*\s*\(\s*x\s*\)\s*=\s*(.+)$/);if(m)rhs=m[1];
-  }
-  if(!rhs)continue;
-  try{
-   const ast=parse(rhs);
-   for(let x=-10;x<=10;x+=.15){
-    try{const y=sample(ast,x,0,x,c);if(isReal(y)&&Math.abs(re(y))<100)values.push(re(y))}catch(e){}
-   }
-  }catch(e){}
- }
- if(values.length){
-  const max=Math.max(5,...values.map(Math.abs));
-  const {w,h}=dims();view.scale=Math.max(8,Math.min(100,Math.min(w,h)/(max*2.4)));
- }
+function screenToWorld(px,py,w,h){
+ return {x:view.cx+(px-w/2)/view.scale,
+         y:view.cy-(py-h/2)/view.scale};
+}
+function niceStep(raw){
+ const p=Math.pow(10,Math.floor(Math.log10(raw)));
+ const n=raw/p;
+ return (n<2?1:n<5?2:5)*p;
+}
+function resizeCanvas(){
+ const rect=canvas.getBoundingClientRect();
+ const dpr=window.devicePixelRatio||1;
+ canvas.width=Math.max(1,Math.round(rect.width*dpr));
+ canvas.height=Math.max(1,Math.round(rect.height*dpr));
+ ctx.setTransform(dpr,0,0,dpr,0,0);
  draw();
 }
+function draw(){
+ const rect=canvas.getBoundingClientRect();
+ const w=rect.width,h=rect.height;
+ if(!w||!h)return;
+ ctx.clearRect(0,0,w,h);
+ ctx.fillStyle="#10141d";ctx.fillRect(0,0,w,h);
 
-/* Pointer and keyboard interaction */
-function pointer(ev){
- const r=canvas.getBoundingClientRect();return {x:ev.clientX-r.left,y:ev.clientY-r.top};
+ if(showGrid)drawGrid(w,h);
+ if(showAxes)drawAxes(w,h);
+ drawGraphs(w,h);
 }
-canvas=$("graph");ctx=canvas.getContext("2d");
-canvas.addEventListener("pointerdown",ev=>{
- canvas.setPointerCapture(ev.pointerId);
- drag={p:pointer(ev),v:{...view}};
-});
-canvas.addEventListener("pointermove",ev=>{
- const p=pointer(ev),w=world(p.x,p.y);
- $("coords").textContent="x: "+format(w.x)+" , y: "+format(w.y);
- if(drag){
-  view.x=drag.v.x-(p.x-drag.p.x)/view.scale;
-  view.y=drag.v.y+(p.y-drag.p.y)/view.scale;
-  draw();
+function drawGrid(w,h){
+ const step=niceStep(75/view.scale);
+ const left=view.cx-w/(2*view.scale);
+ const right=view.cx+w/(2*view.scale);
+ const bottom=view.cy-h/(2*view.scale);
+ const top=view.cy+h/(2*view.scale);
+ ctx.lineWidth=1;ctx.strokeStyle="#252d3c";
+ ctx.beginPath();
+ for(let x=Math.floor(left/step)*step;x<=right;x+=step){
+  const p=worldToScreen(x,0,w,h).x;
+  ctx.moveTo(p,0);ctx.lineTo(p,h);
  }
-});
-canvas.addEventListener("pointerup",()=>drag=null);
-canvas.addEventListener("pointercancel",()=>drag=null);
-canvas.addEventListener("wheel",ev=>{
- ev.preventDefault();
- const p=pointer(ev),before=world(p.x,p.y);
- view.scale=Math.max(4,Math.min(600,view.scale*(ev.deltaY<0?1.12:.89)));
- const after=world(p.x,p.y);
- view.x+=before.x-after.x;view.y+=before.y-after.y;draw();
+ for(let y=Math.floor(bottom/step)*step;y<=top;y+=step){
+  const p=worldToScreen(0,y,w,h).y;
+  ctx.moveTo(0,p);ctx.lineTo(w,p);
+ }
+ ctx.stroke();
+ ctx.fillStyle="#8290a6";ctx.font="11px Consolas";
+ for(let x=Math.ceil(left/step)*step;x<=right;x+=step){
+  if(Math.abs(x)<1e-10)continue;
+  const p=worldToScreen(x,0,w,h);
+  ctx.fillText(Number(x.toPrecision(4)).toString(),p.x+3,Math.max(12,Math.min(h-4,p.y-5)));
+ }
+ for(let y=Math.ceil(bottom/step)*step;y<=top;y+=step){
+  if(Math.abs(y)<1e-10)continue;
+  const p=worldToScreen(0,y,w,h);
+  ctx.fillText(Number(y.toPrecision(4)).toString(),Math.max(3,p.x+5),p.y-3);
+ }
+}
+function drawAxes(w,h){
+ const origin=worldToScreen(0,0,w,h);
+ ctx.strokeStyle="#c0cce0";ctx.lineWidth=1.4;
+ ctx.beginPath();
+ ctx.moveTo(0,origin.y);ctx.lineTo(w,origin.y);
+ ctx.moveTo(origin.x,0);ctx.lineTo(origin.x,h);
+ ctx.stroke();
+ ctx.fillStyle="#d5def0";ctx.font="bold 12px Arial";
+ ctx.fillText("x",w-16,origin.y-8);
+ ctx.fillText("y",origin.x+8,14);
+}
+function drawGraphs(w,h){
+ if(!compiled)return;
+ let legend=[];
+ let colorIndex=0;
+ for(const item of compiled.graph){
+  const color=COLORS[colorIndex++%COLORS.length];
+  ctx.strokeStyle=color;ctx.lineWidth=2.2;ctx.beginPath();
+  let started=false;
+  const step=1;
+  for(let px=0;px<=w;px+=step){
+   const world=screenToWorld(px,0,w,h);
+   try{
+    const y=evaluate(item.ast,compiled.env,{x:world.x});
+    if(!Number.isFinite(y)||Math.abs(y)>1e9){started=false;continue;}
+    const point=worldToScreen(world.x,y,w,h);
+    if(point.y<-h*5||point.y>h*6){started=false;continue;}
+    if(!started){ctx.moveTo(px,point.y);started=true;}
+    else ctx.lineTo(px,point.y);
+   }catch(e){started=false;}
+  }
+  ctx.stroke();
+  legend.push({label:item.label,color});
+ }
+ $("legend").innerHTML=legend.length?
+  legend.map(x=>`<span><i class="dot" style="background:${x.color}"></i>${escapeHTML(x.label)}</span>`).join("")
+  :"No graphs plotted. Add an equation such as y = x^2.";
+}
+function escapeHTML(s){
+ return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function plot(){
+ const lines=$("expressions").value.split(/\r?\n/);
+ compiled=compile(lines);
+ graphItems=compiled.graph;
+ const errors=[...compiled.errors];
+ $("status").textContent=errors.length?errors.join(" | "):
+  "Ready · "+graphItems.length+" graph(s) · "+Object.keys(compiled.env.values).length+" variable(s)";
+ $("status").style.color=errors.length?"var(--red)":"var(--green)";
+ draw();
+}
+function calculate(){
+ try{
+  if(!compiled)plot();
+  const ast=parse($("calcInput").value);
+  const result=evaluate(ast,compiled.env);
+  $("calcResult").textContent=String(result);
+ }catch(e){$("calcResult").textContent="Error: "+e.message;}
+}
+function sequenceTerms(){
+ try{
+  if(!compiled)plot();
+  const name=$("seqInput").value.trim();
+  const n=Math.max(1,Math.min(100,Number($("seqN").value)||5));
+  const ast=compiled.env.sequences[name];
+  if(!ast)throw Error("Sequence not found: "+name+"_n");
+  const terms=[];
+  for(let i=1;i<=n;i++){
+   const v=evaluate(ast,compiled.env,{n:i});
+   terms.push(name+"_"+i+" = "+Number(v.toPrecision(10)));
+  }
+  $("seqResult").textContent=terms.join("\n");
+  $("seqResult").style.whiteSpace="pre-wrap";
+ }catch(e){$("seqResult").textContent="Error: "+e.message;}
+}
+function resetView(){view={cx:0,cy:0,scale:55};draw();}
+
+$("plotBtn").onclick=plot;
+$("calcBtn").onclick=calculate;
+$("seqBtn").onclick=sequenceTerms;
+$("resetBtn").onclick=resetView;
+$("centerBtn").onclick=resetView;
+$("zoomIn").onclick=()=>{view.scale*=1.25;draw();};
+$("zoomOut").onclick=()=>{view.scale/=1.25;draw();};
+$("gridBtn").onclick=()=>{
+ showGrid=!showGrid;$("gridBtn").textContent="Grid: "+(showGrid?"ON":"OFF");draw();
+};
+$("axesBtn").onclick=()=>{
+ showAxes=!showAxes;$("axesBtn").textContent="Axes: "+(showAxes?"ON":"OFF");draw();
+};
+
+$("helpBtn").onclick=()=>$("helpModal").style.display="flex";
+$("closeHelp").onclick=()=>$("helpModal").style.display="none";
+$("helpModal").onclick=e=>{if(e.target.id==="helpModal")$("helpModal").style.display="none";};
+
+canvas.addEventListener("wheel",e=>{
+ e.preventDefault();
+ const rect=canvas.getBoundingClientRect();
+ const before=screenToWorld(e.clientX-rect.left,e.clientY-rect.top,rect.width,rect.height);
+ view.scale*=e.deltaY<0?1.12:1/1.12;
+ view.scale=Math.max(5,Math.min(1000,view.scale));
+ const after=screenToWorld(e.clientX-rect.left,e.clientY-rect.top,rect.width,rect.height);
+ view.cx+=before.x-after.x;view.cy+=before.y-after.y;
+ draw();
 },{passive:false});
-window.addEventListener("resize",sizeCanvas);
-document.addEventListener("keydown",ev=>{
- if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==="s"){ev.preventDefault();saveProject()}
- if((ev.ctrlKey||ev.metaKey)&&ev.key==="Enter"){ev.preventDefault();addExpression("")}
- if(ev.key==="Escape")hideHelp();
+
+canvas.addEventListener("mousedown",e=>{
+ dragging=true;lastMouse={x:e.clientX,y:e.clientY};
+ canvas.style.cursor="grabbing";
+});
+window.addEventListener("mouseup",()=>{dragging=false;canvas.style.cursor="crosshair";});
+window.addEventListener("mousemove",e=>{
+ const rect=canvas.getBoundingClientRect();
+ if(dragging&&lastMouse){
+  const dx=e.clientX-lastMouse.x,dy=e.clientY-lastMouse.y;
+  view.cx-=dx/view.scale;view.cy+=dy/view.scale;
+  lastMouse={x:e.clientX,y:e.clientY};draw();
+ }
+ const p=screenToWorld(e.clientX-rect.left,e.clientY-rect.top,rect.width,rect.height);
+ $("coordinates").textContent="x: "+p.x.toFixed(4)+" | y: "+p.y.toFixed(4);
+});
+canvas.addEventListener("dblclick",resetView);
+
+$("saveBtn").onclick=()=>{
+ const data={
+  format:"AFA GRAPH",version:"0.8",
+  expressions:$("expressions").value,
+  view,showGrid,showAxes
+ };
+ const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+ const a=document.createElement("a");
+ a.href=URL.createObjectURL(blob);a.download="project.afg";a.click();
+ URL.revokeObjectURL(a.href);
+};
+$("loadBtn").onclick=()=>$("fileInput").click();
+$("fileInput").onchange=async e=>{
+ const file=e.target.files[0];if(!file)return;
+ try{
+  const data=JSON.parse(await file.text());
+  if(data.format!=="AFA GRAPH")throw Error("This is not an AFA GRAPH project.");
+  $("expressions").value=data.expressions||"";
+  if(data.view)view=data.view;
+  showGrid=data.showGrid!==false;showAxes=data.showAxes!==false;
+  $("gridBtn").textContent="Grid: "+(showGrid?"ON":"OFF");
+  $("axesBtn").textContent="Axes: "+(showAxes?"ON":"OFF");
+  plot();
+ }catch(err){alert("Could not open project: "+err.message);}
+ e.target.value="";
+};
+
+$("expressions").addEventListener("keydown",e=>{
+ if((e.ctrlKey||e.metaKey)&&e.key==="Enter")plot();
+});
+$("calcInput").addEventListener("keydown",e=>{
+ if(e.key==="Enter")calculate();
 });
 
-/* Startup */
-function init(){
- expressions=[
-  {id:nextId++,text:"y = x^2",visible:true,color:COLORS[0]},
-  {id:nextId++,text:"y = sin(x)",visible:true,color:COLORS[1]},
-  {id:nextId++,text:"sqrt(81)",visible:true,color:COLORS[2]},
-  {id:nextId++,text:"2^^4",visible:true,color:COLORS[3]},
-  {id:nextId++,text:"2^^^3",visible:true,color:COLORS[4]}
- ];
- renderList();sizeCanvas();fitGraph();
- $("status").textContent="AFA GRAPH 0.7 ready · Expanded Math Engine · No external libraries";
-}
-init();
+window.addEventListener("resize",resizeCanvas);
+plot();
+resizeCanvas();
 </script>
 </body>
 </html>
