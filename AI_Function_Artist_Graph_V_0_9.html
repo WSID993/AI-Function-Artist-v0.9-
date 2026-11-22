@@ -1,0 +1,1445 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AFA GRAPH 0.9</title>
+<style>
+:root {
+  --bg:#10131b;
+  --panel:#191e29;
+  --panel2:#222a39;
+  --border:#30394b;
+  --text:#edf2ff;
+  --muted:#98a6bc;
+  --accent:#70a5ff;
+  --danger:#ff7777;
+  --success:#64d9a2;
+}
+* {box-sizing:border-box}
+body {
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Inter,Segoe UI,Arial,sans-serif;
+  overflow:hidden;
+}
+button,input {font:inherit}
+button {
+  border:1px solid var(--border);
+  background:var(--panel2);
+  color:var(--text);
+  padding:8px 12px;
+  border-radius:7px;
+  cursor:pointer;
+}
+button:hover {border-color:var(--accent)}
+input {
+  color:var(--text);
+  background:#111722;
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:9px;
+  outline:none;
+}
+input:focus {border-color:var(--accent)}
+header {
+  height:56px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 16px;
+  background:#151a24;
+  border-bottom:1px solid var(--border);
+}
+.brand {font-size:19px;font-weight:800}
+.brand span {color:var(--accent)}
+.version {color:var(--muted);font-size:12px;margin-left:8px}
+.header-actions {display:flex;gap:7px}
+.app {
+  display:grid;
+  grid-template-columns:390px minmax(0,1fr);
+  height:calc(100dvh - 56px);
+}
+.sidebar {
+  min-width:0;
+  background:var(--panel);
+  border-right:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+}
+.tabs {
+  display:flex;
+  gap:4px;
+  padding:9px;
+  border-bottom:1px solid var(--border);
+}
+.tab {flex:1;font-size:12px}
+.tab.active {
+  background:#30405a;
+  border-color:#526b92;
+}
+.panel-content {
+  padding:12px;
+  overflow:auto;
+  flex:1;
+}
+.panel-title {
+  font-size:12px;
+  font-weight:700;
+  color:var(--muted);
+  letter-spacing:1px;
+  text-transform:uppercase;
+  margin:8px 0 12px;
+}
+.expression-list {display:flex;flex-direction:column;gap:8px}
+.expression-row {
+  display:grid;
+  grid-template-columns:26px minmax(0,1fr) 28px;
+  gap:7px;
+  align-items:center;
+  background:#111722;
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:7px;
+}
+.expression-row:focus-within {border-color:#536d99}
+.expression-row input.expr {
+  width:100%;
+  min-width:0;
+  border:0;
+  background:transparent;
+  font:14px Consolas,monospace;
+  padding:5px 2px;
+}
+.expression-row input.expr:focus {border:0}
+.expression-row input[type=color] {
+  width:24px;height:25px;padding:0;
+  border:0;background:transparent;cursor:pointer;
+}
+.expression-row button {
+  padding:4px;
+  border:0;
+  background:transparent;
+  color:var(--muted);
+}
+.expression-row button:hover {color:var(--danger)}
+.expression-row.hidden-row {opacity:.45}
+.expression-error {
+  grid-column:2/4;
+  color:var(--danger);
+  font-size:11px;
+  overflow-wrap:anywhere;
+  padding:0 3px 4px;
+}
+.add-button {width:100%;margin-top:9px}
+.help-text {
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.65;
+  margin-top:12px;
+}
+.status {
+  border-top:1px solid var(--border);
+  padding:10px 12px;
+  color:var(--muted);
+  font-size:11px;
+  min-height:37px;
+  overflow-wrap:anywhere;
+}
+.workspace {
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+  min-height:0;
+}
+.toolbar {
+  height:47px;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  padding:6px 10px;
+  background:var(--panel);
+  border-bottom:1px solid var(--border);
+}
+.toolbar button {font-size:12px;padding:7px 10px}
+.coords {
+  margin-left:auto;
+  color:var(--muted);
+  font:12px Consolas,monospace;
+  white-space:nowrap;
+}
+.graph-wrap {
+  flex:1;
+  min-height:0;
+  position:relative;
+}
+canvas {width:100%;height:100%;display:block;cursor:crosshair}
+.graph-label {
+  position:absolute;
+  bottom:10px;left:12px;
+  color:#77869e;font-size:11px;
+  pointer-events:none;
+}
+.bottom-bar {
+  min-height:32px;
+  background:var(--panel);
+  border-top:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  padding:5px 12px;
+  color:var(--muted);
+  font-size:11px;
+  gap:14px;
+}
+.calculator-box {display:flex;gap:7px}
+.calculator-box input {flex:1;min-width:0}
+.result-box {
+  margin-top:10px;
+  padding:12px;
+  background:#111722;
+  border:1px solid var(--border);
+  border-radius:7px;
+  overflow-wrap:anywhere;
+  white-space:pre-wrap;
+  font:13px Consolas,monospace;
+}
+.sequence-row {display:flex;gap:7px;margin-top:9px}
+.sequence-row input {width:50%;min-width:0}
+.section {margin-bottom:22px}
+.hidden {display:none!important}
+.modal {
+  display:none;position:fixed;inset:0;
+  background:#0009;z-index:10;
+  align-items:center;justify-content:center;padding:16px;
+}
+.modal-card {
+  width:min(620px,100%);
+  max-height:85vh;overflow:auto;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:12px;padding:22px;
+}
+.modal-card p,.modal-card li {
+  color:#bdc9dc;font-size:13px;line-height:1.7;
+}
+@media(max-width:760px) {
+  body {overflow:auto}
+  .app {
+    height:auto;min-height:calc(100dvh - 56px);
+    display:flex;flex-direction:column;
+  }
+  .sidebar {
+    border-right:0;border-bottom:1px solid var(--border);
+    max-height:48dvh;
+  }
+  .workspace {height:60dvh;min-height:380px}
+  .header-actions button {padding:7px;font-size:11px}
+  .brand {font-size:16px}
+  .toolbar {overflow-x:auto;flex-shrink:0}
+  .coords {font-size:10px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <span class="brand">AFA <span>GRAPH</span></span>
+    <span class="version">0.9</span>
+  </div>
+  <div class="header-actions">
+    <button id="helpButton">Help</button>
+    <button id="saveButton">Save</button>
+    <button id="openButton">Open</button>
+    <input type="file" id="fileInput" accept=".afg,.json" hidden>
+  </div>
+</header>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="tabs">
+      <button class="tab active" data-tab="expressions">Expressions</button>
+      <button class="tab" data-tab="calculator">Calculator</button>
+      <button class="tab" data-tab="sequences">Sequences</button>
+    </div>
+
+    <div class="panel-content" id="expressionsPanel">
+      <div class="panel-title">Expression List</div>
+      <div class="expression-list" id="expressionList"></div>
+      <button class="add-button" id="addExpression">+ Add Expression</button>
+      <div class="help-text">
+        Enter one definition per row.<br>
+        <b>y = x^2</b> creates a graph.<br>
+        <b>f(x) = x^2</b> defines a function.<br>
+        <b>a_n = n^2</b> defines a sequence.<br>
+        <b>k = 5</b> defines a variable.
+        <br><br>
+        Press Ctrl + Enter to update.
+      </div>
+    </div>
+
+    <div class="panel-content hidden" id="calculatorPanel">
+      <div class="panel-title">Calculator</div>
+      <div class="calculator-box">
+        <input id="calculatorInput" placeholder="sqrt(81) + 2^3">
+        <button id="calculateButton">Calculate</button>
+      </div>
+      <div class="result-box" id="calculatorResult">Result appears here.</div>
+      <div class="help-text">
+        The calculator shares definitions with the expression list.
+        <br><br>
+        Examples:<br>
+        <code>sqrt(81)</code><br>
+        <code>nCr(10,3)</code><br>
+        <code>2^^4</code><br>
+        <code>2^^^3</code><br>
+        <code>a_5</code>
+      </div>
+    </div>
+
+    <div class="panel-content hidden" id="sequencesPanel">
+      <div class="panel-title">Sequence Explorer</div>
+      <div class="sequence-row">
+        <input id="sequenceName" value="a" placeholder="Name">
+        <input id="sequenceCount" type="number" value="10" min="1" max="100">
+      </div>
+      <button class="add-button" id="sequenceCalculate">Calculate Terms</button>
+      <div class="result-box" id="sequenceResult">Sequence results appear here.</div>
+      <div class="help-text">
+        Define a sequence in Expressions first.<br><br>
+        Example:<br>
+        <code>a_1 = 1</code><br>
+        <code>a_n = a_(n-1) + 2</code>
+      </div>
+    </div>
+
+    <div class="status" id="status">Ready</div>
+  </aside>
+
+  <main class="workspace">
+    <div class="toolbar">
+      <button id="gridButton">Grid: ON</button>
+      <button id="axesButton">Axes: ON</button>
+      <button id="zoomIn">+</button>
+      <button id="zoomOut">−</button>
+      <button id="resetView">Reset</button>
+      <div class="coords" id="coordinates">x: — | y: —</div>
+    </div>
+    <div class="graph-wrap">
+      <canvas id="graph"></canvas>
+      <div class="graph-label">AFA GRAPH 0.9 · Hybrid Graph Engine</div>
+    </div>
+    <div class="bottom-bar">
+      <span id="graphStatus">Graph ready</span>
+      <span id="graphCount">0 graphs</span>
+    </div>
+  </main>
+</div>
+
+<div class="modal" id="helpModal">
+  <div class="modal-card">
+    <h2>AFA GRAPH 0.9</h2>
+    <p><b>Graph expressions</b></p>
+    <ul>
+      <li><code>y = x^2</code></li>
+      <li><code>y = sin(x)</code></li>
+      <li><code>y = f(x)</code></li>
+    </ul>
+    <p><b>Functions and variables</b></p>
+    <ul>
+      <li><code>f(x) = x^2 + 2x</code></li>
+      <li><code>k = 5</code></li>
+      <li><code>y = k*x</code></li>
+    </ul>
+    <p><b>Sequences</b></p>
+    <ul>
+      <li><code>a_n = n^2</code></li>
+      <li><code>a_1 = 1</code></li>
+      <li><code>a_(n-1)</code> references the previous term.</li>
+      <li><code>a_5</code> evaluates to a number.</li>
+    </ul>
+    <p><b>Operators</b></p>
+    <ul>
+      <li><code>+ - * / %</code></li>
+      <li><code>^</code> or <code>**</code> — power</li>
+      <li><code>^^</code> — tetration</li>
+      <li><code>^^^</code> — pentation</li>
+      <li><code>!</code> — factorial</li>
+    </ul>
+    <p><b>Functions</b></p>
+    <p>
+      sin, cos, tan, asin, acos, atan, sinh, cosh, tanh,
+      sqrt, cbrt, abs, exp, ln, log, log2, log10,
+      floor, ceil, round, trunc, sign, min, max, pow,
+      hypot, atan2, mod, gcd, lcm, nCr, nPr,
+      mean, median, sum, product, tetration, pentation.
+    </p>
+    <p>Angles are measured in radians.</p>
+    <button id="closeHelp">Close</button>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+/* =========================================
+   AFA GRAPH 0.9
+   Core Math Engine + Graph Renderer
+========================================= */
+
+const $ = id => document.getElementById(id);
+const canvas = $("graph");
+const ctx = canvas.getContext("2d");
+
+const COLORS = [
+  "#70a5ff","#ff8585","#64d9a2","#d69cff",
+  "#ffc66d","#55d6d0","#f18ac8","#b6d66b",
+  "#f5a76d","#a3b8ff"
+];
+
+let view = {x:0,y:0,scale:55};
+let showGrid = true;
+let showAxes = true;
+let dragging = false;
+let lastMouse = null;
+let compiled = null;
+let renderPending = false;
+
+let rows = [
+  {text:"y = x^2",color:COLORS[0],visible:true},
+  {text:"f(x) = sin(x)",color:COLORS[1],visible:true},
+  {text:"a_n = n^2",color:COLORS[2],visible:true},
+  {text:"k = 3",color:COLORS[3],visible:true},
+  {text:"y = k*x",color:COLORS[4],visible:true},
+  {text:"y = a_1*x",color:COLORS[5],visible:true}
+];
+
+/* =========================================
+   MATH FUNCTIONS
+========================================= */
+
+function factorial(n) {
+  if(!Number.isInteger(n)||n<0||n>170)
+    throw Error("Factorial requires an integer from 0 to 170.");
+  let r=1;
+  for(let i=2;i<=n;i++) r*=i;
+  return r;
+}
+
+function tetration(a,h) {
+  if(!Number.isInteger(h)||h<1||h>6)
+    throw Error("Tetration height must be an integer from 1 to 6.");
+  if(a<0||a>10||!Number.isFinite(a))
+    throw Error("Tetration base must be between 0 and 10.");
+  let result=a;
+  for(let i=1;i<h;i++) {
+    if(result>1000) throw Error("Tetration exceeds the current limit.");
+    result=Math.pow(a,result);
+    if(!Number.isFinite(result)||result>1e100)
+      throw Error("Tetration result is too large.");
+  }
+  return result;
+}
+
+function pentation(a,h) {
+  if(!Number.isInteger(h)||h<1||h>3)
+    throw Error("Pentation height must be an integer from 1 to 3.");
+  if(a<0||a>3||!Number.isFinite(a))
+    throw Error("Pentation base must be between 0 and 3.");
+  let result=a;
+  for(let i=1;i<h;i++) result=tetration(a,result);
+  return result;
+}
+
+function gcd(a,b) {
+  a=Math.abs(Math.trunc(a));
+  b=Math.abs(Math.trunc(b));
+  while(b) [a,b]=[b,a%b];
+  return a;
+}
+
+function nCr(n,r) {
+  if(!Number.isInteger(n)||!Number.isInteger(r)||n<0||r<0||r>n)
+    throw Error("Invalid nCr arguments.");
+  return factorial(n)/(factorial(r)*factorial(n-r));
+}
+
+function nPr(n,r) {
+  if(!Number.isInteger(n)||!Number.isInteger(r)||n<0||r<0||r>n)
+    throw Error("Invalid nPr arguments.");
+  return factorial(n)/factorial(n-r);
+}
+
+const BUILTINS = {
+  sin:Math.sin,cos:Math.cos,tan:Math.tan,
+  asin:Math.asin,acos:Math.acos,atan:Math.atan,
+  sinh:Math.sinh,cosh:Math.cosh,tanh:Math.tanh,
+  asinh:Math.asinh,acosh:Math.acosh,atanh:Math.atanh,
+  sqrt:Math.sqrt,cbrt:Math.cbrt,abs:Math.abs,
+  exp:Math.exp,ln:Math.log,log:Math.log10,
+  log10:Math.log10,log2:Math.log2,
+  floor:Math.floor,ceil:Math.ceil,round:Math.round,
+  trunc:Math.trunc,sign:Math.sign,
+  min:Math.min,max:Math.max,pow:Math.pow,
+  hypot:Math.hypot,atan2:Math.atan2,
+  mod:(a,b)=>((a%b)+b)%b,
+  gcd,
+  lcm:(a,b)=>a===0||b===0?0:Math.abs(a*b)/gcd(a,b),
+  nCr,nPr,factorial,
+  tetration,pentation,
+  deg:x=>x*180/Math.PI,
+  rad:x=>x*Math.PI/180,
+  sec:x=>1/Math.cos(x),
+  csc:x=>1/Math.sin(x),
+  cot:x=>1/Math.tan(x),
+  mean:(...a)=>a.reduce((s,x)=>s+x,0)/a.length,
+  sum:(...a)=>a.reduce((s,x)=>s+x,0),
+  product:(...a)=>a.reduce((s,x)=>s*x,1),
+  median:(...a)=>{
+    if(!a.length)throw Error("median requires values.");
+    const b=[...a].sort((x,y)=>x-y);
+    const m=Math.floor(b.length/2);
+    return b.length%2?b[m]:(b[m-1]+b[m])/2;
+  }
+};
+
+const CONSTANTS = {
+  pi:Math.PI,e:Math.E,tau:2*Math.PI,
+  phi:(1+Math.sqrt(5))/2,inf:Infinity
+};
+
+/* =========================================
+   TOKENIZER
+========================================= */
+
+function tokenize(source) {
+  const s=source.replace(/\*\*/g,"^");
+  const tokens=[];
+  let i=0;
+
+  while(i<s.length) {
+    if(/\s/.test(s[i])) {i++;continue;}
+
+    const rest=s.slice(i);
+    const op=rest.match(/^(\^\^\^|\^\^|[+\-*/%^(),!])/);
+
+    if(op) {
+      tokens.push({type:op[1]});
+      i+=op[1].length;
+      continue;
+    }
+
+    const number=rest.match(/^(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?/i);
+    if(number) {
+      tokens.push({type:"number",value:Number(number[0])});
+      i+=number[0].length;
+      continue;
+    }
+
+    const identifier=rest.match(/^[A-Za-z_][A-Za-z_0-9]*/);
+    if(identifier) {
+      tokens.push({type:"identifier",value:identifier[0]});
+      i+=identifier[0].length;
+      continue;
+    }
+
+    throw Error("Unexpected character: "+s[i]);
+  }
+
+  tokens.push({type:"EOF"});
+  return tokens;
+}
+
+/* =========================================
+   PRATT PARSER
+========================================= */
+
+function parse(source) {
+  const tokens=tokenize(source);
+  let position=0;
+
+  const peek=()=>tokens[position];
+  const take=()=>tokens[position++];
+
+  function expect(type) {
+    if(peek().type!==type)
+      throw Error("Expected '"+type+"'.");
+    return take();
+  }
+
+  function expression(minPrecedence=0) {
+    let left=primary();
+
+    while(true) {
+      let op=peek().type;
+      let implicit=false;
+
+      if(["number","identifier","("].includes(op)) {
+        op="*";
+        implicit=true;
+      }
+
+      const precedence={
+        "+":1,"-":1,
+        "*":2,"/":2,"%":2,
+        "^":4,"^^":4,"^^^":4
+      }[op];
+
+      if(precedence===undefined||precedence<minPrecedence)
+        break;
+
+      if(!implicit) take();
+
+      const right=expression(
+        precedence+(
+          ["^","^^","^^^"].includes(op)?0:1
+        )
+      );
+
+      left={type:"binary",op,left,right};
+    }
+
+    return left;
+  }
+
+  function primary() {
+    const token=take();
+    let node;
+
+    if(token.type==="number") {
+      node={type:"number",value:token.value};
+    }
+    else if(token.type==="identifier") {
+      const name=token.value;
+
+      if(peek().type==="(") {
+        take();
+        const args=[];
+
+        if(peek().type!==")") {
+          while(true) {
+            args.push(expression(0));
+            if(peek().type!==",") break;
+            take();
+          }
+        }
+
+        expect(")");
+        node={type:"call",name,args};
+      } else {
+        node={type:"identifier",name};
+      }
+    }
+    else if(token.type==="(") {
+      node=expression(0);
+      expect(")");
+    }
+    else if(token.type==="+"||token.type==="-") {
+      node={
+        type:"unary",
+        op:token.type,
+        value:expression(3)
+      };
+    }
+    else {
+      throw Error("Unexpected token: "+token.type);
+    }
+
+    while(peek().type==="!") {
+      take();
+      node={type:"factorial",value:node};
+    }
+
+    return node;
+  }
+
+  const ast=expression(0);
+  if(peek().type!=="EOF")
+    throw Error("Unexpected token: "+peek().type);
+
+  return ast;
+}
+
+/* =========================================
+   EXPRESSION COMPILER
+========================================= */
+
+function compileExpressions() {
+  const env={
+    values:{},
+    functions:{},
+    sequences:{},
+    sequenceBases:{},
+    sequenceCache:{}
+  };
+
+  const graphs=[];
+  const errors=[];
+  const variables=[];
+  const functions=[];
+  const sequences=[];
+  const bases=[];
+
+  rows.forEach((row,index)=>{
+    if(!row.visible) return;
+
+    const line=row.text.trim();
+    if(!line||line.startsWith("#")) return;
+
+    const equals=line.indexOf("=");
+    if(equals<0) {
+      errors.push({index,message:"Missing '='."});
+      return;
+    }
+
+    const lhs=line.slice(0,equals).trim();
+    const rhs=line.slice(equals+1).trim();
+
+    if(!rhs) {
+      errors.push({index,message:"Empty expression."});
+      return;
+    }
+
+    try {
+      const seq=lhs.match(/^([A-Za-z]\w*)_n$/);
+      const base=lhs.match(/^([A-Za-z]\w*)_(\d+)$/);
+      const fun=lhs.match(/^([A-Za-z]\w*)\s*\(\s*([A-Za-z]\w*)\s*\)$/);
+
+      if(seq) {
+        sequences.push({name:seq[1],ast:parse(rhs),index});
+      }
+      else if(base) {
+        bases.push({
+          name:base[1],
+          n:Number(base[2]),
+          ast:parse(rhs),
+          index
+        });
+      }
+      else if(fun) {
+        functions.push({
+          name:fun[1],
+          parameter:fun[2],
+          ast:parse(rhs),
+          index
+        });
+      }
+      else if(lhs==="y") {
+        graphs.push({
+          ast:parse(rhs),
+          label:line,
+          color:row.color,
+          index
+        });
+      }
+      else if(/^[A-Za-z_]\w*$/.test(lhs)) {
+        variables.push({name:lhs,ast:parse(rhs),index});
+      }
+      else {
+        errors.push({index,message:"Unsupported definition."});
+      }
+    } catch(error) {
+      errors.push({index,message:error.message});
+    }
+  });
+
+  for(const s of sequences)
+    env.sequences[s.name]=s.ast;
+
+  for(const b of bases) {
+    env.sequenceBases[b.name]??={};
+    env.sequenceBases[b.name][b.n]=b.ast;
+  }
+
+  for(const f of functions)
+    env.functions[f.name]=f;
+
+  // Resolve ordinary variables through repeated passes.
+  const pending=[...variables];
+
+  for(let pass=0;pass<variables.length+2&&pending.length;pass++) {
+    for(let i=pending.length-1;i>=0;i--) {
+      const item=pending[i];
+
+      try {
+        const value=evaluate(item.ast,env,{});
+        if(typeof value==="number"&&Number.isFinite(value)) {
+          env.values[item.name]=value;
+          pending.splice(i,1);
+        }
+      } catch(error) {
+        // A later pass may resolve dependencies.
+      }
+    }
+  }
+
+  for(const item of pending) {
+    errors.push({
+      index:item.index,
+      message:"Could not resolve variable: "+item.name
+    });
+  }
+
+  return {env,graphs,errors};
+}
+
+/* =========================================
+   MATH EVALUATOR
+========================================= */
+
+function evaluate(ast,env,local={},depth=0) {
+  if(depth>100) throw Error("Maximum evaluation depth exceeded.");
+
+  switch(ast.type) {
+    case "number":
+      return ast.value;
+
+    case "identifier": {
+      const name=ast.name;
+
+      if(Object.prototype.hasOwnProperty.call(local,name))
+        return local[name];
+
+      if(Object.prototype.hasOwnProperty.call(env.values,name))
+        return env.values[name];
+
+      if(Object.prototype.hasOwnProperty.call(CONSTANTS,name))
+        return CONSTANTS[name];
+
+      const indexed=name.match(/^([A-Za-z]\w*)_(\d+)$/);
+
+      if(indexed)
+        return sequenceTerm(indexed[1],Number(indexed[2]),env,depth+1);
+
+      throw Error("Undefined name: "+name);
+    }
+
+    case "unary": {
+      const value=evaluate(ast.value,env,local,depth+1);
+      return ast.op==="-"?-value:value;
+    }
+
+    case "factorial":
+      return factorial(evaluate(ast.value,env,local,depth+1));
+
+    case "binary": {
+      const a=evaluate(ast.left,env,local,depth+1);
+      const b=evaluate(ast.right,env,local,depth+1);
+
+      switch(ast.op) {
+        case "+":return a+b;
+        case "-":return a-b;
+        case "*":return a*b;
+        case "/":return a/b;
+        case "%":return a%b;
+        case "^":return Math.pow(a,b);
+        case "^^":return tetration(a,b);
+        case "^^^":return pentation(a,b);
+      }
+      throw Error("Unknown operator.");
+    }
+
+    case "call": {
+      const args=ast.args.map(a=>evaluate(a,env,local,depth+1));
+
+      // a_(n-1) is a sequence term reference.
+      if(ast.name.endsWith("_")&&env.sequences[ast.name.slice(0,-1)]) {
+        if(args.length!==1) throw Error("Sequence reference needs one index.");
+        return sequenceTerm(
+          ast.name.slice(0,-1),
+          args[0],
+          env,
+          depth+1
+        );
+      }
+
+      if(BUILTINS[ast.name])
+        return BUILTINS[ast.name](...args);
+
+      const fn=env.functions[ast.name];
+
+      if(fn) {
+        if(args.length!==1)
+          throw Error(ast.name+" expects one argument.");
+
+        return evaluate(
+          fn.ast,
+          env,
+          {...local,[fn.parameter]:args[0]},
+          depth+1
+        );
+      }
+
+      throw Error("Unknown function: "+ast.name);
+    }
+  }
+
+  throw Error("Invalid expression.");
+}
+
+/* =========================================
+   SEQUENCE ENGINE
+========================================= */
+
+function sequenceTerm(name,n,env,depth=0) {
+  if(!Number.isInteger(n)||n<1||n>10000)
+    throw Error("Sequence index must be from 1 to 10000.");
+
+  if(depth>100) throw Error("Sequence recursion limit exceeded.");
+
+  const key=name+":"+n;
+
+  if(Object.prototype.hasOwnProperty.call(env.sequenceCache,key))
+    return env.sequenceCache[key];
+
+  if(env.sequenceCache["active:"+key])
+    throw Error("Circular sequence reference: "+key);
+
+  env.sequenceCache["active:"+key]=true;
+
+  try {
+    let ast=null;
+
+    if(env.sequenceBases[name]&&env.sequenceBases[name][n])
+      ast=env.sequenceBases[name][n];
+    else if(env.sequences[name])
+      ast=env.sequences[name];
+    else
+      throw Error("Sequence not found: "+name);
+
+    const value=evaluate(ast,env,{n},depth+1);
+
+    if(!Number.isFinite(value))
+      throw Error("Sequence result is not finite.");
+
+    env.sequenceCache[key]=value;
+    delete env.sequenceCache["active:"+key];
+
+    return value;
+  } catch(error) {
+    delete env.sequenceCache["active:"+key];
+    throw error;
+  }
+}
+
+/* =========================================
+   EXPRESSION UI
+========================================= */
+
+function renderRows() {
+  const list=$("expressionList");
+  list.innerHTML="";
+
+  rows.forEach((row,index)=>{
+    const wrap=document.createElement("div");
+    wrap.className="expression-row"+(row.visible?"":" hidden-row");
+
+    const color=document.createElement("input");
+    color.type="color";
+    color.value=row.color;
+    color.title="Expression color";
+    color.addEventListener("input",()=>{
+      row.color=color.value;
+      scheduleUpdate();
+    });
+
+    const input=document.createElement("input");
+    input.className="expr";
+    input.value=row.text;
+    input.spellcheck=false;
+    input.placeholder="Enter an expression...";
+    input.addEventListener("input",()=>{
+      row.text=input.value;
+      scheduleUpdate();
+    });
+    input.addEventListener("keydown",event=>{
+      if((event.ctrlKey||event.metaKey)&&event.key==="Enter")
+        update();
+    });
+
+    const remove=document.createElement("button");
+    remove.textContent="×";
+    remove.title="Delete expression";
+    remove.addEventListener("click",()=>{
+      rows.splice(index,1);
+      renderRows();
+      update();
+    });
+
+    wrap.append(color,input,remove);
+    list.append(wrap);
+  });
+}
+
+function scheduleUpdate() {
+  if(renderPending) return;
+  renderPending=true;
+
+  requestAnimationFrame(()=>{
+    renderPending=false;
+    update();
+  });
+}
+
+$("addExpression").onclick=()=>{
+  rows.push({
+    text:"",
+    color:COLORS[rows.length%COLORS.length],
+    visible:true
+  });
+  renderRows();
+  const inputs=$("expressionList").querySelectorAll("input.expr");
+  inputs[inputs.length-1]?.focus();
+};
+
+function update() {
+  compiled=compileExpressions();
+
+  const errorText=compiled.errors
+    .map(e=>"Line "+(e.index+1)+": "+e.message);
+
+  $("status").textContent=errorText.length
+    ?errorText.join(" | ")
+    :"Ready · Math engine running";
+
+  $("status").style.color=errorText.length
+    ?"var(--danger)":"var(--success)";
+
+  $("graphStatus").textContent=errorText.length
+    ?"Some expressions have errors"
+    :"Graph engine ready";
+
+  $("graphCount").textContent=
+    compiled.graphs.length+" graph(s)";
+
+  draw();
+}
+
+/* =========================================
+   GRAPH RENDERER
+========================================= */
+
+function worldToScreen(x,y,w,h) {
+  return {
+    x:w/2+(x-view.x)*view.scale,
+    y:h/2-(y-view.y)*view.scale
+  };
+}
+
+function screenToWorld(px,py,w,h) {
+  return {
+    x:view.x+(px-w/2)/view.scale,
+    y:view.y-(py-h/2)/view.scale
+  };
+}
+
+function niceStep(raw) {
+  const power=Math.pow(10,Math.floor(Math.log10(raw)));
+  const n=raw/power;
+  return (n<2?1:n<5?2:5)*power;
+}
+
+function drawGrid(w,h) {
+  const step=niceStep(75/view.scale);
+  const left=view.x-w/(2*view.scale);
+  const right=view.x+w/(2*view.scale);
+  const bottom=view.y-h/(2*view.scale);
+  const top=view.y+h/(2*view.scale);
+
+  ctx.strokeStyle="#252e3d";
+  ctx.lineWidth=1;
+  ctx.beginPath();
+
+  for(let x=Math.floor(left/step)*step;x<=right;x+=step) {
+    const px=worldToScreen(x,0,w,h).x;
+    ctx.moveTo(px,0);
+    ctx.lineTo(px,h);
+  }
+
+  for(let y=Math.floor(bottom/step)*step;y<=top;y+=step) {
+    const py=worldToScreen(0,y,w,h).y;
+    ctx.moveTo(0,py);
+    ctx.lineTo(w,py);
+  }
+
+  ctx.stroke();
+
+  ctx.fillStyle="#8492a8";
+  ctx.font="11px Consolas";
+
+  for(let x=Math.ceil(left/step)*step;x<=right;x+=step) {
+    if(Math.abs(x)<1e-10) continue;
+    const p=worldToScreen(x,0,w,h);
+    ctx.fillText(Number(x.toPrecision(4)).toString(),p.x+3,Math.max(12,p.y-5));
+  }
+
+  for(let y=Math.ceil(bottom/step)*step;y<=top;y+=step) {
+    if(Math.abs(y)<1e-10) continue;
+    const p=worldToScreen(0,y,w,h);
+    ctx.fillText(Number(y.toPrecision(4)).toString(),Math.max(3,p.x+5),p.y-3);
+  }
+}
+
+function drawAxes(w,h) {
+  const p=worldToScreen(0,0,w,h);
+
+  ctx.strokeStyle="#c3cee0";
+  ctx.lineWidth=1.4;
+  ctx.beginPath();
+  ctx.moveTo(0,p.y);
+  ctx.lineTo(w,p.y);
+  ctx.moveTo(p.x,0);
+  ctx.lineTo(p.x,h);
+  ctx.stroke();
+
+  ctx.fillStyle="#d5def0";
+  ctx.font="bold 12px Arial";
+  ctx.fillText("x",w-15,p.y-8);
+  ctx.fillText("y",p.x+8,14);
+}
+
+function drawGraphs(w,h) {
+  if(!compiled) return;
+
+  for(const graph of compiled.graphs) {
+    ctx.strokeStyle=graph.color;
+    ctx.lineWidth=2.2;
+    ctx.beginPath();
+
+    let started=false;
+
+    for(let px=0;px<=w;px+=1) {
+      const world=screenToWorld(px,0,w,h);
+
+      try {
+        const y=evaluate(
+          graph.ast,
+          compiled.env,
+          {x:world.x}
+        );
+
+        if(!Number.isFinite(y)||Math.abs(y)>1e9) {
+          started=false;
+          continue;
+        }
+
+        const point=worldToScreen(world.x,y,w,h);
+
+        if(point.y<-h*4||point.y>h*5) {
+          started=false;
+          continue;
+        }
+
+        if(!started) {
+          ctx.moveTo(px,point.y);
+          started=true;
+        } else {
+          ctx.lineTo(px,point.y);
+        }
+      } catch(error) {
+        started=false;
+      }
+    }
+
+    ctx.stroke();
+  }
+}
+
+function draw() {
+  const rect=canvas.getBoundingClientRect();
+  const w=rect.width,h=rect.height;
+
+  if(!w||!h) return;
+
+  ctx.clearRect(0,0,w,h);
+  ctx.fillStyle="#10141d";
+  ctx.fillRect(0,0,w,h);
+
+  if(showGrid) drawGrid(w,h);
+  if(showAxes) drawAxes(w,h);
+
+  drawGraphs(w,h);
+}
+
+function resizeCanvas() {
+  const rect=canvas.getBoundingClientRect();
+  const dpr=window.devicePixelRatio||1;
+
+  canvas.width=Math.max(1,Math.round(rect.width*dpr));
+  canvas.height=Math.max(1,Math.round(rect.height*dpr));
+
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  draw();
+}
+
+function resetView() {
+  view={x:0,y:0,scale:55};
+  draw();
+}
+
+/* =========================================
+   CALCULATOR
+========================================= */
+
+function calculate() {
+  try {
+    if(!compiled) update();
+
+    const ast=parse($("calculatorInput").value);
+    const result=evaluate(ast,compiled.env);
+
+    $("calculatorResult").textContent=String(result);
+  } catch(error) {
+    $("calculatorResult").textContent="Error: "+error.message;
+  }
+}
+
+$("calculateButton").onclick=calculate;
+$("calculatorInput").addEventListener("keydown",event=>{
+  if(event.key==="Enter") calculate();
+});
+
+/* =========================================
+   SEQUENCE EXPLORER
+========================================= */
+
+function calculateSequence() {
+  try {
+    if(!compiled) update();
+
+    const name=$("sequenceName").value.trim();
+    const count=Math.max(
+      1,
+      Math.min(100,Number($("sequenceCount").value)||10)
+    );
+
+    const output=[];
+
+    for(let n=1;n<=count;n++) {
+      const value=sequenceTerm(name,n,compiled.env);
+      output.push(name+"_"+n+" = "+Number(value.toPrecision(12)));
+    }
+
+    $("sequenceResult").textContent=output.join("\n");
+  } catch(error) {
+    $("sequenceResult").textContent="Error: "+error.message;
+  }
+}
+
+$("sequenceCalculate").onclick=calculateSequence;
+
+/* =========================================
+   GRAPH CONTROLS
+========================================= */
+
+$("gridButton").onclick=()=>{
+  showGrid=!showGrid;
+  $("gridButton").textContent="Grid: "+(showGrid?"ON":"OFF");
+  draw();
+};
+
+$("axesButton").onclick=()=>{
+  showAxes=!showAxes;
+  $("axesButton").textContent="Axes: "+(showAxes?"ON":"OFF");
+  draw();
+};
+
+$("zoomIn").onclick=()=>{
+  view.scale=Math.min(1000,view.scale*1.25);
+  draw();
+};
+
+$("zoomOut").onclick=()=>{
+  view.scale=Math.max(3,view.scale/1.25);
+  draw();
+};
+
+$("resetView").onclick=resetView;
+
+canvas.addEventListener("wheel",event=>{
+  event.preventDefault();
+
+  const rect=canvas.getBoundingClientRect();
+  const px=event.clientX-rect.left;
+  const py=event.clientY-rect.top;
+
+  const before=screenToWorld(px,py,rect.width,rect.height);
+
+  view.scale*=event.deltaY<0?1.12:1/1.12;
+  view.scale=Math.max(3,Math.min(1000,view.scale));
+
+  const after=screenToWorld(px,py,rect.width,rect.height);
+
+  view.x+=before.x-after.x;
+  view.y+=before.y-after.y;
+
+  draw();
+},{passive:false});
+
+canvas.addEventListener("mousedown",event=>{
+  dragging=true;
+  lastMouse={x:event.clientX,y:event.clientY};
+});
+
+window.addEventListener("mouseup",()=>{
+  dragging=false;
+  lastMouse=null;
+});
+
+window.addEventListener("mousemove",event=>{
+  const rect=canvas.getBoundingClientRect();
+
+  if(dragging&&lastMouse) {
+    const dx=event.clientX-lastMouse.x;
+    const dy=event.clientY-lastMouse.y;
+
+    view.x-=dx/view.scale;
+    view.y+=dy/view.scale;
+
+    lastMouse={x:event.clientX,y:event.clientY};
+    draw();
+  }
+
+  if(event.clientX>=rect.left&&event.clientX<=rect.right&&
+     event.clientY>=rect.top&&event.clientY<=rect.bottom) {
+    const p=screenToWorld(
+      event.clientX-rect.left,
+      event.clientY-rect.top,
+      rect.width,
+      rect.height
+    );
+
+    $("coordinates").textContent=
+      "x: "+p.x.toFixed(4)+" | y: "+p.y.toFixed(4);
+  }
+});
+
+canvas.addEventListener("dblclick",resetView);
+
+/* =========================================
+   TABS
+========================================= */
+
+document.querySelectorAll(".tab").forEach(button=>{
+  button.addEventListener("click",()=>{
+    document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));
+    button.classList.add("active");
+
+    ["expressions","calculator","sequences"].forEach(name=>{
+      $(name+"Panel").classList.toggle(
+        "hidden",
+        name!==button.dataset.tab
+      );
+    });
+  });
+});
+
+/* =========================================
+   PROJECT SAVE / LOAD
+========================================= */
+
+$("saveButton").onclick=()=>{
+  const project={
+    format:"AFA GRAPH",
+    version:"0.9",
+    expressions:rows,
+    view,
+    showGrid,
+    showAxes
+  };
+
+  const blob=new Blob(
+    [JSON.stringify(project,null,2)],
+    {type:"application/json"}
+  );
+
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download="AFA_GRAPH_Project.afg";
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+};
+
+$("openButton").onclick=()=>$("fileInput").click();
+
+$("fileInput").addEventListener("change",async event=>{
+  const file=event.target.files[0];
+  if(!file) return;
+
+  try {
+    const data=JSON.parse(await file.text());
+
+    if(data.format!=="AFA GRAPH")
+      throw Error("Invalid AFA GRAPH project.");
+
+    if(!Array.isArray(data.expressions))
+      throw Error("Project expressions are missing.");
+
+    rows=data.expressions.map(item=>({
+      text:String(item.text??""),
+      color:/^#[0-9a-f]{6}$/i.test(item.color)?item.color:COLORS[0],
+      visible:item.visible!==false
+    }));
+
+    if(data.view&&Number.isFinite(data.view.scale)) {
+      view={
+        x:Number(data.view.x)||0,
+        y:Number(data.view.y)||0,
+        scale:Math.max(3,Math.min(1000,data.view.scale))
+      };
+    }
+
+    showGrid=data.showGrid!==false;
+    showAxes=data.showAxes!==false;
+
+    $("gridButton").textContent="Grid: "+(showGrid?"ON":"OFF");
+    $("axesButton").textContent="Axes: "+(showAxes?"ON":"OFF");
+
+    renderRows();
+    update();
+  } catch(error) {
+    alert("Could not open project: "+error.message);
+  }
+
+  event.target.value="";
+});
+
+/* =========================================
+   HELP
+========================================= */
+
+$("helpButton").onclick=()=>{
+  $("helpModal").style.display="flex";
+};
+
+$("closeHelp").onclick=()=>{
+  $("helpModal").style.display="none";
+};
+
+$("helpModal").addEventListener("click",event=>{
+  if(event.target.id==="helpModal")
+    $("helpModal").style.display="none";
+});
+
+/* =========================================
+   INITIALIZATION
+========================================= */
+
+renderRows();
+update();
+
+if(window.ResizeObserver) {
+  const observer=new ResizeObserver(resizeCanvas);
+  observer.observe(canvas.parentElement);
+} else {
+  window.addEventListener("resize",resizeCanvas);
+}
+
+resizeCanvas();
+
+</script>
+</body>
+</html>
